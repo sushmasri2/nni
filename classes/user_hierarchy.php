@@ -1,0 +1,244 @@
+<?php
+namespace local_dashboardv2;
+
+defined('MOODLE_INTERNAL') || die();
+
+class user_hierarchy
+{
+    /**
+     * Get current user's custom field data
+     */
+    public static function get_current_user_hierarchy($userid)
+    {
+        global $DB;
+        return $DB->get_record_sql("
+            SELECT u.username,
+                MAX(CASE WHEN ud.fieldid = 8 THEN ud.data END) AS spoc,
+                MAX(CASE WHEN ud.fieldid = 11 THEN ud.data END) AS area_manager,
+                MAX(CASE WHEN ud.fieldid = 12 THEN ud.data END) AS nutrition_officer,
+                MAX(CASE WHEN ud.fieldid = 13 THEN ud.data END) AS regional_head
+            FROM {user} u
+            LEFT JOIN {user_info_data} ud ON ud.userid = u.id AND ud.fieldid IN (8, 11, 12, 13)
+            WHERE u.id = ?
+            GROUP BY u.id, u.username  ORDER BY u.username", [$userid]);
+    }
+
+    /**
+     * Get Area Managers under a SPOC
+     */
+    public static function get_area_managers_by_region($spoc)
+    {
+        global $DB;
+        return $DB->get_records_sql("
+            SELECT DISTINCT u.id, u.username, u.firstname, u.lastname,
+                MAX(CASE WHEN ud.fieldid = 11 THEN ud.data END) AS area_manager_name
+            FROM {user} u
+            LEFT JOIN {user_info_data} ud ON ud.userid = u.id AND ud.fieldid = 11
+            LEFT JOIN {user_info_data} ud2 ON ud2.userid = u.id AND ud2.fieldid = 8
+            LEFT JOIN {user_info_data} ud3 ON ud3.userid = u.id AND ud3.fieldid = 12
+            WHERE ud2.data = ? AND ud.data IS NOT NULL AND ud.data != '' 
+            AND ud.data = u.username AND (ud3.data IS NULL OR ud3.data = '')
+            GROUP BY u.id, u.username, u.firstname, u.lastname
+            ORDER BY u.username", [$spoc]);
+    }
+
+    /**
+     * Get Nutrition Officers under an Area Manager
+     */
+    public static function get_nutrition_officers_by_area_manager($area_manager)
+    {
+        global $DB;
+        return $DB->get_records_sql("
+            SELECT DISTINCT u.id, u.username, u.firstname, u.lastname,
+                MAX(CASE WHEN ud.fieldid = 10 THEN ud.data END) AS nutrition_officer_name
+            FROM {user} u
+            LEFT JOIN {user_info_data} ud ON ud.userid = u.id AND ud.fieldid = 12
+            LEFT JOIN {user_info_data} ud2 ON ud2.userid = u.id AND ud2.fieldid = 11
+            WHERE ud2.data = ? AND ud.data IS NOT NULL AND ud.data != ''
+            AND ud.data = u.username
+            GROUP BY u.id, u.username, u.firstname, u.lastname
+            ORDER BY u.username", [$area_manager]);
+    }
+
+    /**
+     * Helper method to build module completion columns
+     */
+    private static function get_module_completion_columns()
+    {
+        $modules = [
+            1 => [3, 5, 6, 7],
+            2 => [8, 10, 11, 12],
+            3 => [13, 15, 16, 17],
+            4 => [18, 20, 21, 22],
+            5 => [23, 25, 26, 27],
+            6 => [28, 30, 31, 32],
+            7 => [33, 35, 36, 37]
+        ];
+
+        $columns = [];
+        foreach ($modules as $num => $sections) {
+            $section_list = implode(',', $sections);
+            $columns[] = "ROUND((COUNT(CASE WHEN cs.section IN ({$section_list}) THEN cmc.id END) * 100.0) / (SELECT COUNT(*) FROM {course_modules} cm2 JOIN {course_sections} cs2 ON cm2.section = cs2.id WHERE cs2.section IN ({$section_list}) AND cs2.course = 6), 2) AS module_{$num}";
+        }
+        return implode(",\n                       ", $columns);
+    }
+
+    /**
+     * Generic method to get users with completion data based on hierarchy field
+     */
+    private static function get_users_with_completion($field_id, $value, $exclude_self = true)
+    {
+        global $DB;
+        $self_condition = $exclude_self ? "AND u.username != ud{$field_id}.data" : "";
+
+        return $DB->get_records_sql("
+            SELECT DISTINCT u.id, u.username, u.firstname, u.lastname, u.email,
+                   ud8.data AS spoc, ud11.data AS area_manager, ud12.data AS nutrition_officer, ud13.data AS regional_head,
+                   " . self::get_module_completion_columns() . "
+            FROM {user} u
+            LEFT JOIN {user_info_data} ud8 ON ud8.userid = u.id AND ud8.fieldid = 8
+            LEFT JOIN {user_info_data} ud11 ON ud11.userid = u.id AND ud11.fieldid = 11
+            LEFT JOIN {user_info_data} ud12 ON ud12.userid = u.id AND ud12.fieldid = 12
+            LEFT JOIN {user_info_data} ud13 ON ud13.userid = u.id AND ud13.fieldid = 13
+            LEFT JOIN {role_assignments} ra ON ra.userid = u.id
+            LEFT JOIN {course_modules_completion} cmc ON cmc.userid = u.id AND cmc.completionstate = 1
+            LEFT JOIN {course_modules} cm ON cmc.coursemoduleid = cm.id
+            LEFT JOIN {course_sections} cs ON cm.section = cs.id
+            WHERE u.deleted = 0 AND ud{$field_id}.data = ? {$self_condition} AND ra.roleid = 5 
+            AND (cs.course = 6 OR cs.course IS NULL)
+            GROUP BY u.id, u.username, u.firstname, u.lastname, u.email, ud8.data, ud11.data, ud12.data, ud13.data
+            ORDER BY u.username", [$value]);
+    }
+
+    /**
+     * Get all users under SPOC with completion data
+     */
+    public static function get_all_users_under_spoc($spoc)
+    {
+        return self::get_users_with_completion(8, $spoc);
+    }
+
+    /**
+     * Get users under specific area manager for SPOC
+     */
+    public static function get_users_under_area_manager_for_spoc($area_manager_username)
+    {
+        return self::get_users_with_completion(11, $area_manager_username);
+    }
+
+    /**
+     * Get all users under Area Manager
+     */
+    public static function get_all_users_under_area_manager($area_manager)
+    {
+        return self::get_users_with_completion(11, $area_manager);
+    }
+
+    /**
+     * Get users under Nutrition Officer for Area Manager
+     */
+    public static function get_users_under_nutrition_officer_for_area_manager($nutrition_officer_username)
+    {
+        return self::get_users_with_completion(12, $nutrition_officer_username);
+    }
+
+    /**
+     * Get user's current role based on hierarchy
+     */
+    public static function get_current_user_role($userid)
+    {
+        $context = \context_system::instance();
+        $roles = get_user_roles($context, $userid);
+        $role_priorities = ['spoc', 'area_manager', 'nutritionofficer', 'learner'];
+
+        foreach ($roles as $role) {
+            if (in_array($role->shortname, $role_priorities)) {
+                return $role->shortname;
+            }
+        }
+        return '';
+    }
+
+    /**
+     * Generic count method for different metrics
+     */
+    private static function get_count($field_id, $value, $metric)
+    {
+        global $DB;
+        $exclude_self = "AND u.username != ud{$field_id}.data";
+
+        $joins = [
+            'new_registrations' => '',
+            'course_enrolments' => 'JOIN {user_enrolments} ue ON ue.userid = u.id JOIN {enrol} e ON e.id = ue.enrolid',
+            'course_completions' => 'JOIN {course_completions} cc ON cc.userid = u.id',
+            'active_users' => '',
+            'inactive_users' => ''
+        ];
+
+        $conditions = [
+            'new_registrations' => '',
+            'course_enrolments' => '',
+            'course_completions' => 'AND cc.timecompleted IS NOT NULL',
+            'active_users' => 'AND u.lastaccess > 0',
+            'inactive_users' => 'AND u.lastaccess = 0'
+        ];
+
+        $count_field = $metric === 'course_completions' ? 'cc.userid' :
+            ($metric === 'course_enrolments' ? 'ue.userid' : 'u.id');
+
+        return $DB->get_field_sql(
+            "
+            SELECT COUNT(DISTINCT {$count_field})
+            FROM {user} u
+            LEFT JOIN {user_info_data} ud{$field_id} ON ud{$field_id}.userid = u.id AND ud{$field_id}.fieldid = {$field_id}
+            LEFT JOIN {role_assignments} ra ON ra.userid = u.id
+            {$joins[$metric]}
+            WHERE u.deleted = 0 AND ud{$field_id}.data = ? {$exclude_self} AND ra.roleid = 5 {$conditions[$metric]}",
+            [$value]
+        );
+    }
+
+    // SPOC count methods
+    public static function spoccount_newregistrations($spoc)
+    {
+        return self::get_count(8, $spoc, 'new_registrations');
+    }
+    public function spoccount_courseenrolments($spoc)
+    {
+        return self::get_count(8, $spoc, 'course_enrolments');
+    }
+    public function spoccount_coursecompletions($spoc)
+    {
+        return self::get_count(8, $spoc, 'course_completions');
+    }
+    public function spoccount_activeusers($spoc)
+    {
+        return self::get_count(8, $spoc, 'active_users');
+    }
+    public function spoccount_inactiveusers($spoc)
+    {
+        return self::get_count(8, $spoc, 'inactive_users');
+    }
+
+    // Area Manager count methods
+    public function area_managercount_newregistrations($area_manager)
+    {
+        return self::get_count(11, $area_manager, 'new_registrations');
+    }
+    public function area_managercount_courseenrolments($area_manager)
+    {
+        return self::get_count(11, $area_manager, 'course_enrolments');
+    }
+    public function area_managercount_coursecompletions($area_manager)
+    {
+        return self::get_count(11, $area_manager, 'course_completions');
+    }
+    public function area_managercount_activeusers($area_manager)
+    {
+        return self::get_count(11, $area_manager, 'active_users');
+    }
+    public function area_managercount_inactiveusers($area_manager)
+    {
+        return self::get_count(11, $area_manager, 'inactive_users');
+    }
+}

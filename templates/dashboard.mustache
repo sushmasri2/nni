@@ -1,0 +1,159 @@
+{{!
+    Updated template with AJAX support - dashboard.mustache
+}}
+<div id="dashboard-container">
+    <!-- Header -->
+    <div class="dashboard-header">
+        <h3 class="welcome-text">
+            {{#str}}welcome, local_dashboardv2{{/str}}, {{user_fullname}}
+            <span class="role-badge">({{role_display}})</span>
+        </h3>
+       <p><strong>{{#str}}your_region, local_dashboardv2{{/str}}</strong> {{user_region}}</p>
+    </div>
+    <div class="dashboard-content">
+        <div class="row g-4">
+        {{#insights}}
+            <div class="insight col-12 col-md-6 col-xl-3 mb-5 {{class}}" data-id="{{class}}">
+                <div class="insight-wrapper p-3">
+                    <div class="row">
+                        <div class="col-sm-3 p-0">
+                            <div class="insight-image">
+                                <img src="{{icon}}" alt="{{class}}" class="img-fluid">
+                            </div>
+                        </div>
+                        <div class="col-sm-9 p-0">
+                            <h5 class="insight-title mb-0">{{title}}</h5>
+                            <div class="insight-wrap d-flex">
+                                <label class="insight-value pr-2 theme-primary-text h3" data-oldvalue="1208">{{count}}</label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        {{/insights}}
+        </div>
+    </div>
+
+    {{#has_access}}
+        <div class="dashboard-section">
+            <div class="row align-items-center">
+                <div class="col-12 col-md-4">
+                    {{#is_spoc}}
+                        <!-- SPOC Dashboard -->
+                            {{#has_area_managers}}
+                                <div class="form-group">
+                                    <label for="selected_area_manager">{{#str}}select_area_manager, local_dashboardv2{{/str}}</label>
+                                    <select name="selected_area_manager" id="selected_area_manager" class="form-control">
+                                        <option value="">{{#str}}choose_area_manager, local_dashboardv2{{/str}}</option>
+                                        {{#area_managers}}
+                                        <option value="{{username}}" {{#selected}}selected{{/selected}}>
+                                            {{fullname}} ({{username}})
+                                        </option>
+                                        {{/area_managers}}
+                                    </select>
+                                </div>
+                            {{/has_area_managers}}
+                            
+                            {{^has_area_managers}}
+                                <div class="no-data">
+                                    <p>{{#str}}no_area_managers, local_dashboardv2{{/str}}</p>
+                                </div>
+                            {{/has_area_managers}}
+                    {{/is_spoc}}
+
+                    {{#is_area_manager}}
+                        <!-- Area Manager Dashboard -->
+                            {{#has_nutrition_officers}}
+                                <div class="form-group">
+                                    <label for="selected_nutrition_officer">{{#str}}select_nutrition_officer, local_dashboardv2{{/str}}</label>
+                                    <select name="selected_nutrition_officer" id="selected_nutrition_officer" class="form-control">
+                                        <option value="">{{#str}}choose_nutrition_officer, local_dashboardv2{{/str}}</option>
+                                        {{#nutrition_officers}}
+                                        <option value="{{username}}" {{#selected}}selected{{/selected}}>
+                                            {{fullname}} ({{username}})
+                                        </option>
+                                        {{/nutrition_officers}}
+                                    </select>
+                                </div>
+                            {{/has_nutrition_officers}}
+                            
+                            {{^has_nutrition_officers}}
+                                <div class="no-data">
+                                    <p>{{#str}}no_nutrition_officers, local_dashboardv2{{/str}}</p>
+                                </div>
+                            {{/has_nutrition_officers}}
+                    {{/is_area_manager}}
+                </div>
+                <div class="col-12 col-md-5 d-flex">
+                    <input type="text" id="search-users" class="form-control mr-3" placeholder="{{#str}}search_users, local_dashboardv2{{/str}}" aria-label="{{#str}}search_users, local_dashboardv2{{/str}}">
+                </div>
+                <div class="col-12 col-md-3">
+                    <button id="download-users-table" class="btn btn-primary">{{#str}}download_table, local_dashboardv2{{/str}}</button>
+                </div>
+            </div>
+
+        <!-- Users Data Table Container (Will be updated via AJAX) -->
+        <div class="users-table-container">
+            {{#has_users_data}}
+                <table class="table table-striped users-data-table table-responsive">
+                    <thead>
+                        <tr>
+                            <th>{{#str}}username, local_dashboardv2{{/str}}</th>
+                            <th>{{#str}}fullname, local_dashboardv2{{/str}}</th>
+                            <th>{{#str}}email, local_dashboardv2{{/str}}</th>
+                            <th>{{#str}}spoc, local_dashboardv2{{/str}}</th>
+                            <th>{{#str}}regional_head, local_dashboardv2{{/str}}</th>
+                            <th>{{#str}}area_manager, local_dashboardv2{{/str}}</th>
+                            <th>{{#str}}nutrition_officer, local_dashboardv2{{/str}}</th>
+                            <th>{{#str}}module, local_dashboardv2, 1{{/str}}</th>
+                            <th>{{#str}}module, local_dashboardv2, 2{{/str}}</th>
+                            <th>{{#str}}module, local_dashboardv2, 3{{/str}}</th>
+                            <th>{{#str}}module, local_dashboardv2, 4{{/str}}</th>
+                            <th>{{#str}}module, local_dashboardv2, 5{{/str}}</th>
+                            <th>{{#str}}module, local_dashboardv2, 6{{/str}}</th>
+                            <th>{{#str}}module, local_dashboardv2, 7{{/str}}</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {{#users_data}}
+                        <tr>
+                            <td>{{username}}</td>
+                            <td>{{fullname}}</td>
+                            <td>{{email}}</td>
+                            <td>{{spoc}}</td>
+                            <td>{{regional_head}}</td>
+                            <td>{{area_manager}}</td>
+                            <td>{{nutrition_officer}}</td>
+                            <td>{{module_1}}%</td>
+                            <td>{{module_2}}%</td>
+                            <td>{{module_3}}%</td>
+                            <td>{{module_4}}%</td>
+                            <td>{{module_5}}%</td>
+                            <td>{{module_6}}%</td>
+                            <td>{{module_7}}%</td>
+                        </tr>
+                        {{/users_data}}
+                    </tbody>
+                </table>
+            {{/has_users_data}}
+            {{^has_users_data}}
+                <div class="no-data">
+                    <p>No users found.</p>
+                </div>
+            {{/has_users_data}}
+        </div>
+        </div>
+    {{/has_access}}
+
+    {{^has_access}}
+        <!-- Access Denied -->
+        <div class="alert alert-danger">
+            <h3>🚫 {{#str}}access_denied, local_dashboardv2{{/str}}</h3>
+            <p>{{#str}}no_permission, local_dashboardv2{{/str}}</p>
+            <p><strong>{{#str}}current_role, local_dashboardv2{{/str}}</strong> {{role_display}}</p>
+            <p><strong>{{#str}}required_roles, local_dashboardv2{{/str}}</strong> Manager or Area Manager</p>
+            <p>{{#str}}contact_admin, local_dashboardv2{{/str}}</p>
+        </div>
+    {{/has_access}}
+</div>
+

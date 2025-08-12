@@ -1,0 +1,37 @@
+<?php
+defined('MOODLE_INTERNAL') || die();
+
+$string['pluginname'] = 'Dashboard v2';
+$string['dashboard'] = 'User Management Dashboard';
+$string['welcome'] = 'Welcome';
+$string['area_manager_dashboard'] = 'Area Manager Dashboard';
+$string['select_area_manager'] = 'Select Area Manager to view their users:';
+$string['select_nutrition_officer'] = 'Select Nutrition Officer to view their users:';
+$string['choose_area_manager'] = '-- Choose an Area Manager --';
+$string['choose_nutrition_officer'] = '-- Choose a Nutrition Officer --';
+$string['access_denied'] = 'Access Denied';
+$string['no_permission'] = 'You don\'t have the required permissions to access this dashboard.';
+$string['no_data'] = 'No data available';
+$string['no_area_managers'] = 'No Area Managers found under your region.';
+$string['no_nutrition_officers'] = 'No Nutrition Officers found under your area.';
+$string['your_region'] = 'Your Region:';
+$string['your_area'] = 'Your Area:';
+$string['username'] = 'Username';
+$string['fullname'] = 'Full Name';
+$string['email'] = 'Email';
+$string['spoc'] = 'SPOC';
+$string['regional_head'] = 'Regional Head';
+$string['area_manager'] = 'Area Manager';
+$string['nutrition_officer'] = 'Nutrition Officer';
+$string['module'] = 'Module {$a}';
+$string['current_role'] = 'Current Role:';
+$string['required_roles'] = 'Required Roles:';
+$string['contact_admin'] = 'Please contact your system administrator if you believe this is an error.';
+$string['newregistrations'] = 'New registrations';
+$string['courseenrolments'] = 'Enrollment Count';
+$string['coursecompletions'] = 'Completion Count';
+$string['activeusers'] = 'Active users';
+$string['inactiveusers'] = 'In Active users';
+$string['download_table'] = 'Download Users Table';
+$string['search_users'] = 'Search Users';
+$string['search'] = 'Search';
