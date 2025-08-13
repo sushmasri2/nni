@@ -76,3 +76,5 @@ $string['category'] = 'Category';
 $string['course_name'] = 'Course Name';
 $string['short_name'] = 'Short Name';
 $string['enrolled_users'] = 'Enrolled Users';
+$string['feedback_forms'] = 'Feedback Forms';
+$string['feedback_form'] = 'Feedback Form'; 
