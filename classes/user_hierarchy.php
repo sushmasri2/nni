@@ -342,4 +342,5 @@ class user_hierarchy
         
         return $DB->get_records_sql($final_query, [$identifier]);
     }
+    
 }

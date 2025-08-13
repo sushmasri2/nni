@@ -208,6 +208,8 @@ var Dashboard = {
         form.submit();
         document.body.removeChild(form);
     }
+    
+    
 };
 
 // Initialize when DOM is ready
