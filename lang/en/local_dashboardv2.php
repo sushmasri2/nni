@@ -62,19 +62,3 @@ $string['last_activity'] = 'Last Activity';
 $string['invalidreporttype'] = 'Invalid report type specified';
 $string['noaccess'] = 'You do not have access to view this report';
 $string['nopermissiontodownload'] = 'You do not have permission to download this report';
-
-
-// Feedback data strings
-$string['feedback_analysis'] = 'Feedback Analysis';
-$string['enrolled_courses'] = 'Enrolled Courses';
-$string['question'] = 'Question';
-$string['excellent'] = 'Excellent';
-$string['good'] = 'Good';
-$string['needs_improvement'] = 'Needs Improvement';
-$string['avg_score'] = 'Average Score';
-$string['category'] = 'Category';
-$string['course_name'] = 'Course Name';
-$string['short_name'] = 'Short Name';
-$string['enrolled_users'] = 'Enrolled Users';
-$string['feedback_forms'] = 'Feedback Forms';
-$string['feedback_form'] = 'Feedback Form'; 

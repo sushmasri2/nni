@@ -7,7 +7,6 @@ use renderable;
 use renderer_base;
 use templatable;
 use stdClass;
-use local_dashboardv2\user_hierarchy;
 
 class dashboard_page implements renderable, templatable
 {
@@ -20,49 +19,33 @@ class dashboard_page implements renderable, templatable
     private $selected_area_manager;
     private $selected_nutrition_officer;
     private $insights;
-    private $available_courses;
-    private $available_feedbacks;
-    private $selected_course;
-    private $selected_feedback;
-    private $feedback_analysis_data;
-    private function getCountBasedOnRole($insight_name, $role, $hierarchy_instance)
-    {
-        switch ($insight_name) {
+    private function getCountBasedOnRole($insight_name, $role, $hierarchy_instance) {
+        switch($insight_name) {
             case 'newregistrations':
-                if ($role == 'spoc')
-                    return $hierarchy_instance->spoccount_newregistrations($this->user_hierarchy->spoc);
-                if ($role == 'area_manager')
-                    return $hierarchy_instance->area_managercount_newregistrations($this->user_hierarchy->area_manager);
+                if ($role == 'spoc') return $hierarchy_instance->spoccount_newregistrations($this->user_hierarchy->spoc);
+                if ($role == 'area_manager') return $hierarchy_instance->area_managercount_newregistrations($this->user_hierarchy->area_manager);
                 return 0;
-
+                
             case 'courseenrolments':
-                if ($role == 'spoc')
-                    return $hierarchy_instance->spoccount_courseenrolments($this->user_hierarchy->spoc);
-                if ($role == 'area_manager')
-                    return $hierarchy_instance->area_managercount_courseenrolments($this->user_hierarchy->area_manager);
+                if ($role == 'spoc') return $hierarchy_instance->spoccount_courseenrolments($this->user_hierarchy->spoc);
+                if ($role == 'area_manager') return $hierarchy_instance->area_managercount_courseenrolments($this->user_hierarchy->area_manager);
                 return 0;
-
+                
             case 'coursecompletions':
-                if ($role == 'spoc')
-                    return $hierarchy_instance->spoccount_coursecompletions($this->user_hierarchy->spoc);
-                if ($role == 'area_manager')
-                    return $hierarchy_instance->area_managercount_coursecompletions($this->user_hierarchy->area_manager);
+                if ($role == 'spoc') return $hierarchy_instance->spoccount_coursecompletions($this->user_hierarchy->spoc);
+                if ($role == 'area_manager') return $hierarchy_instance->area_managercount_coursecompletions($this->user_hierarchy->area_manager);
                 return 0;
-
+                
             case 'activeusers':
-                if ($role == 'spoc')
-                    return $hierarchy_instance->spoccount_activeusers($this->user_hierarchy->spoc);
-                if ($role == 'area_manager')
-                    return $hierarchy_instance->area_managercount_activeusers($this->user_hierarchy->area_manager);
+                if ($role == 'spoc') return $hierarchy_instance->spoccount_activeusers($this->user_hierarchy->spoc);
+                if ($role == 'area_manager') return $hierarchy_instance->area_managercount_activeusers($this->user_hierarchy->area_manager);
                 return 0;
-
+                
             case 'inactiveusers':
-                if ($role == 'spoc')
-                    return $hierarchy_instance->spoccount_inactiveusers($this->user_hierarchy->spoc);
-                if ($role == 'area_manager')
-                    return $hierarchy_instance->area_managercount_inactiveusers($this->user_hierarchy->area_manager);
+                if ($role == 'spoc') return $hierarchy_instance->spoccount_inactiveusers($this->user_hierarchy->spoc);
+                if ($role == 'area_manager') return $hierarchy_instance->area_managercount_inactiveusers($this->user_hierarchy->area_manager);
                 return 0;
-
+                
             default:
                 return 0;
         }
@@ -76,8 +59,6 @@ class dashboard_page implements renderable, templatable
         $users_data = [],
         $selected_area_manager = '',
         $selected_nutrition_officer = '',
-        $selected_course = '',
-        $selected_feedback = '',
     ) {
         $this->current_role = $current_role;
         $this->user_hierarchy = $user_hierarchy;
@@ -86,11 +67,7 @@ class dashboard_page implements renderable, templatable
         $this->users_data = $users_data;
         $this->selected_area_manager = $selected_area_manager;
         $this->selected_nutrition_officer = $selected_nutrition_officer;
-        $this->selected_course = $selected_course;
-        $this->selected_feedback = $selected_feedback;
-        $user_hierarchy_instance = new user_hierarchy();
-        $this->available_courses = user_hierarchy::get_available_courses_for_feedback();
-        $this->available_feedbacks = user_hierarchy::get_feedback_forms_by_course($selected_course);
+        $user_hierarchy_instance = new \local_dashboardv2\user_hierarchy();
         $this->insights = array(
             'newregistrations' => array(
                 'icon' => (new \moodle_url('/local/edwiserreports/pix/registration.svg'))->out(),
@@ -132,26 +109,8 @@ class dashboard_page implements renderable, templatable
 
             ),
         );
-        if ($selected_course && $selected_feedback && $current_role) {
-            $identifier = '';
-            if ($current_role === 'spoc' && $user_hierarchy->spoc) {
-                $identifier = $selected_area_manager ?: $user_hierarchy->spoc;
-                $role_type = $selected_area_manager ? 'area_manager' : 'spoc';
-            } elseif ($current_role === 'area_manager') {
-                $identifier = $selected_nutrition_officer ?: $user_hierarchy->area_manager;
-                $role_type = $selected_nutrition_officer ? 'nutrition_officer' : 'area_manager';
-            }
-
-            if ($identifier) {
-                $this->feedback_analysis_data = user_hierarchy::get_feedback_analysis(
-                    $selected_feedback,
-                    $role_type,
-                    $identifier,
-                    $selected_course
-                );
-            }
-        }
     }
+
     public function export_for_template(renderer_base $output)
     {
         global $USER;
@@ -223,47 +182,6 @@ class dashboard_page implements renderable, templatable
         $data->has_nutrition_officers = !empty($this->nutrition_officers);
         $data->has_users_data = !empty($this->users_data);
         $data->insights = array_values($this->insights);
-        $data->available_courses = [];
-        foreach ($this->available_courses as $course) {
-            $data->available_courses[] = [
-                'id' => $course->id,
-                'fullname' => $course->fullname,
-                'shortname' => $course->shortname,
-                'selected' => ($this->selected_course == $course->id)
-            ];
-        }
-
-        $data->available_feedbacks = [];
-        foreach ($this->available_feedbacks as $feedback) {
-            $data->available_feedbacks[] = [
-                'id' => $feedback->id,
-                'name' => $feedback->name,
-                'course_name' => $feedback->course_name,
-                'selected' => ($this->selected_feedback == $feedback->id)
-            ];
-        }
-
-        // Add feedback analysis data
-        $data->feedback_analysis_data = [];
-        if ($this->feedback_analysis_data) {
-            foreach ($this->feedback_analysis_data as $feedback_item) {
-                $data->feedback_analysis_data[] = [
-                    'question' => $feedback_item->question,
-                    'excellent' => $feedback_item->excellent,
-                    'good' => $feedback_item->good,
-                    'average_score' => $feedback_item->average_score, // Use 'average_score' for template
-                    'needs_improvement' => $feedback_item->needs_improvement,
-                    'avg_score' => $feedback_item->avg_score,
-                    'final_category' => $feedback_item->final_category
-                ];
-            }
-        }
-
-        $data->selected_course = $this->selected_course;
-        $data->selected_feedback = $this->selected_feedback;
-        $data->has_available_courses = !empty($this->available_courses);
-        $data->has_available_feedbacks = !empty($this->available_feedbacks);
-        $data->has_feedback_analysis = !empty($this->feedback_analysis_data);
         return $data;
     }
 

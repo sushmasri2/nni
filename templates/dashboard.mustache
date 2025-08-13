@@ -39,7 +39,6 @@
         </div>
     </div>
 
-
     {{#has_access}}
         <div class="dashboard-section">
             <div class="row align-items-center">
@@ -48,8 +47,8 @@
                         <!-- SPOC Dashboard -->
                             {{#has_area_managers}}
                                 <div class="form-group">
-                                    <label for="dashboard_selected_area_manager">{{#str}}select_area_manager, local_dashboardv2{{/str}}</label>
-                                    <select name="dashboard_selected_area_manager" id="dashboard_selected_area_manager" class="form-control dashboard-filter">
+                                    <label for="selected_area_manager">{{#str}}select_area_manager, local_dashboardv2{{/str}}</label>
+                                    <select name="selected_area_manager" id="selected_area_manager" class="form-control">
                                         <option value="">{{#str}}choose_area_manager, local_dashboardv2{{/str}}</option>
                                         {{#area_managers}}
                                         <option value="{{username}}" {{#selected}}selected{{/selected}}>
@@ -71,8 +70,8 @@
                         <!-- Area Manager Dashboard -->
                             {{#has_nutrition_officers}}
                                 <div class="form-group">
-                                    <label for="dashboard_selected_nutrition_officer">{{#str}}select_nutrition_officer, local_dashboardv2{{/str}}</label>
-                                    <select name="dashboard_selected_nutrition_officer" id="dashboard_selected_nutrition_officer" class="form-control dashboard-filter">
+                                    <label for="selected_nutrition_officer">{{#str}}select_nutrition_officer, local_dashboardv2{{/str}}</label>
+                                    <select name="selected_nutrition_officer" id="selected_nutrition_officer" class="form-control">
                                         <option value="">{{#str}}choose_nutrition_officer, local_dashboardv2{{/str}}</option>
                                         {{#nutrition_officers}}
                                         <option value="{{username}}" {{#selected}}selected{{/selected}}>
@@ -149,134 +148,6 @@
             {{/has_users_data}}
         </div>
         </div>
-            <div class="feedback-section">
-        <h4>{{#str}}feedback_analysis, local_dashboardv2{{/str}}</h4>
-        <div class="row">
-            <div class="col-12 col-md-4">
-                <!-- User Hierarchy Selection (existing) -->
-                {{#is_spoc}}
-                    {{#has_area_managers}}
-                        <div class="form-group">
-                            <label for="feedback_selected_area_manager">{{#str}}select_area_manager, local_dashboardv2{{/str}}</label>
-                            <select name="feedback_selected_area_manager" id="feedback_selected_area_manager" class="form-control feedback-filter">
-                                <option value="">{{#str}}choose_area_manager, local_dashboardv2{{/str}}</option>
-                                {{#area_managers}}
-                                <option value="{{username}}" {{#selected}}selected{{/selected}}>
-                                    {{fullname}} ({{username}})
-                                </option>
-                                {{/area_managers}}
-                            </select>
-                        </div>
-                    {{/has_area_managers}}
-                {{/is_spoc}}
-
-                {{#is_area_manager}}
-                    {{#has_nutrition_officers}}
-                        <div class="form-group">
-                            <label for="feedback_selected_nutrition_officer">{{#str}}select_nutrition_officer, local_dashboardv2{{/str}}</label>
-                            <select name="feedback_selected_nutrition_officer" id="feedback_selected_nutrition_officer" class="form-control feedback-filter">
-                                <option value="">{{#str}}choose_nutrition_officer, local_dashboardv2{{/str}}</option>
-                                {{#nutrition_officers}}
-                                <option value="{{username}}" {{#selected}}selected{{/selected}}>
-                                    {{fullname}} ({{username}})
-                                </option>
-                                {{/nutrition_officers}}
-                            </select>
-                        </div>
-                    {{/has_nutrition_officers}}
-                {{/is_area_manager}}
-            </div>
-
-            <div class="col-12 col-md-4">
-                <!-- Course Selection -->
-                <div class="form-group">
-                    <label for="feedback_selected_course">{{#str}}enrolled_courses, local_dashboardv2{{/str}}</label>
-                    {{#has_available_courses}}
-                        <select name="feedback_selected_course" id="feedback_selected_course" class="form-control feedback-filter">
-                            <option value="">-- Choose a Course --</option>
-                            {{#available_courses}}
-                            <option value="{{id}}" {{#selected}}selected{{/selected}}>
-                                {{fullname}}
-                            </option>
-                            {{/available_courses}}
-                        </select>
-                    {{/has_available_courses}}
-                    {{^has_available_courses}}
-                        <p class="text-muted">No courses available</p>
-                    {{/has_available_courses}}
-                </div>
-            </div>
-
-            <div class="col-12 col-md-4">
-                <!-- Feedback Form Selection -->
-                <div class="form-group">
-                    <label for="feedback_selected_feedback">Feedback Forms</label>
-                    {{#has_available_feedbacks}}
-                        <select name="feedback_selected_feedback" id="feedback_selected_feedback" class="form-control feedback-filter">
-                            <option value="">-- Choose a Feedback Form --</option>
-                            {{#available_feedbacks}}
-                            <option value="{{id}}" {{#selected}}selected{{/selected}}>
-                                {{name}}
-                            </option>
-                            {{/available_feedbacks}}
-                        </select>
-                    {{/has_available_feedbacks}}
-                    {{^has_available_feedbacks}}
-                        <p class="text-muted">Select a course to see available feedback forms</p>
-                    {{/has_available_feedbacks}}
-                </div>
-            </div>
-        </div>
-
-        <!-- Feedback Analysis Results -->
-        {{#has_feedback_analysis}}
-        <div class="feedback-results mt-4">
-            <div class="card">
-                <div class="card-header">
-                    <h5>Feedback Analysis Results</h5>
-                </div>
-                <div class="card-body">
-                    <div class="table-responsive">
-                        <table class="table table-striped">
-                            <thead>
-                                <tr>
-                                    <th>{{#str}}question, local_dashboardv2{{/str}}</th>
-                                    <th>{{#str}}excellent, local_dashboardv2{{/str}}</th>
-                                    <th>{{#str}}good, local_dashboardv2{{/str}}</th>
-                                    <th>Average</th>
-                                    <th>{{#str}}needs_improvement, local_dashboardv2{{/str}}</th>
-                                    <th>{{#str}}avg_score, local_dashboardv2{{/str}}</th>
-                                    <th>{{#str}}category, local_dashboardv2{{/str}}</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {{#feedback_analysis_data}}
-                                <tr>
-                                    <td>{{question}}</td>
-                                    <td><span class="badge badge-success">{{excellent}}</span></td>
-                                    <td><span class="badge badge-primary">{{good}}</span></td>
-                                    <td><span class="badge badge-warning">{{average}}</span></td>
-                                    <td><span class="badge badge-warning">{{average_score}}</span></td>
-                                    <td><span class="badge badge-danger">{{needs_improvement}}</span></td>
-                                    <td><strong>{{avg_score}}</strong></td>
-                                    <td>
-                                        <span class="badge
-                                            {{#is_excellent}}badge-success{{/is_excellent}}
-                                            {{#is_good}}badge-primary{{/is_good}}
-                                            {{#is_average}}badge-warning{{/is_average}}
-                                            {{#is_needs_improvement}}badge-danger{{/is_needs_improvement}}
-                                        ">{{final_category}}</span>
-                                    </td>
-                                </tr>
-                                {{/feedback_analysis_data}}
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-            </div>
-        </div>
-        {{/has_feedback_analysis}}
-    </div>
     {{/has_access}}
 
     {{^has_access}}
