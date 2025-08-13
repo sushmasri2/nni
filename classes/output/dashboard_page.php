@@ -251,7 +251,7 @@ class dashboard_page implements renderable, templatable
                     'question' => $feedback_item->question,
                     'excellent' => $feedback_item->excellent,
                     'good' => $feedback_item->good,
-                    'average' => $feedback_item->average_score,
+                    'average_score' => $feedback_item->average_score, // Use 'average_score' for template
                     'needs_improvement' => $feedback_item->needs_improvement,
                     'avg_score' => $feedback_item->avg_score,
                     'final_category' => $feedback_item->final_category

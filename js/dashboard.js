@@ -11,16 +11,42 @@ var Dashboard = {
         // AJAX form submission for dropdowns
         var areaManagerSelect = document.getElementById('selected_area_manager');
         var nutritionOfficerSelect = document.getElementById('selected_nutrition_officer');
-
+        // Dashboard section events (users table)
         if (areaManagerSelect) {
             areaManagerSelect.addEventListener('change', function () {
                 self.loadUsersData();
             });
         }
-
         if (nutritionOfficerSelect) {
             nutritionOfficerSelect.addEventListener('change', function () {
                 self.loadUsersData();
+            });
+        }
+
+        // Feedback section events (feedback analysis)
+        var feedbackAreaManagerSelect = document.getElementById('feedback_selected_area_manager');
+        var feedbackNutritionOfficerSelect = document.getElementById('feedback_selected_nutrition_officer');
+        var feedbackCourseSelect = document.getElementById('feedback_selected_course');
+        var feedbackFeedbackSelect = document.getElementById('feedback_selected_feedback');
+        if (feedbackAreaManagerSelect) {
+            feedbackAreaManagerSelect.addEventListener('change', function () {
+                self.loadFeedbackData();
+            });
+        }
+        if (feedbackNutritionOfficerSelect) {
+            feedbackNutritionOfficerSelect.addEventListener('change', function () {
+                self.loadFeedbackData();
+            });
+        }
+        if (feedbackCourseSelect) {
+            feedbackCourseSelect.addEventListener('change', function () {
+                self.loadFeedbackData();
+                self.loadFeedbackForms(this.value);
+            });
+        }
+        if (feedbackFeedbackSelect) {
+            feedbackFeedbackSelect.addEventListener('change', function () {
+                self.loadFeedbackData();
             });
         }
 
@@ -49,12 +75,7 @@ var Dashboard = {
         });
 
         // Course selection change event
-        var courseSelect = document.getElementById('selected_course');
-        if (courseSelect) {
-            courseSelect.addEventListener('change', function () {
-                self.loadFeedbackForms(this.value);
-            });
-        }
+    // (Handled above for feedback section)
     },
 
     loadUsersData: function () {
@@ -225,8 +246,8 @@ var Dashboard = {
     },
 
     loadFeedbackForms: function (courseId) {
-        var feedbackSelect = document.getElementById('selected_feedback');
-        if (!feedbackSelect) return;
+    var feedbackSelect = document.getElementById('feedback_selected_feedback');
+    if (!feedbackSelect) return;
 
         // Clear existing options
         feedbackSelect.innerHTML = '<option value="">-- Choose a Feedback Form --</option>';
@@ -264,14 +285,14 @@ var Dashboard = {
     },
 
     loadFeedbackData: function () {
-        var selectedAreaManager = document.getElementById('selected_area_manager') ?
-            document.getElementById('selected_area_manager').value : '';
-        var selectedNutritionOfficer = document.getElementById('selected_nutrition_officer') ?
-            document.getElementById('selected_nutrition_officer').value : '';
-        var selectedCourse = document.getElementById('selected_course') ?
-            document.getElementById('selected_course').value : '';
-        var selectedFeedback = document.getElementById('selected_feedback') ?
-            document.getElementById('selected_feedback').value : '';
+        var selectedAreaManager = document.getElementById('feedback_selected_area_manager') ?
+            document.getElementById('feedback_selected_area_manager').value : '';
+        var selectedNutritionOfficer = document.getElementById('feedback_selected_nutrition_officer') ?
+            document.getElementById('feedback_selected_nutrition_officer').value : '';
+        var selectedCourse = document.getElementById('feedback_selected_course') ?
+            document.getElementById('feedback_selected_course').value : '';
+        var selectedFeedback = document.getElementById('feedback_selected_feedback') ?
+            document.getElementById('feedback_selected_feedback').value : '';
 
         if (!selectedCourse || !selectedFeedback) {
             return; // Need both course and feedback to proceed
@@ -362,7 +383,7 @@ var Dashboard = {
                     <td>${item.question}</td>
                     <td><span class="badge badge-success">${item.excellent}</span></td>
                     <td><span class="badge badge-primary">${item.good}</span></td>
-                    <td><span class="badge badge-warning">${item.average}</span></td>
+                    <td><span class="badge badge-warning">${item.average_score}</span></td>
                     <td><span class="badge badge-danger">${item.needs_improvement}</span></td>
                     <td><strong>${item.avg_score}</strong></td>
                     <td><span class="badge ${categoryClass}">${item.final_category}</span></td>
