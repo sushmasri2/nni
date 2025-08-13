@@ -62,23 +62,3 @@ $string['last_activity'] = 'Last Activity';
 $string['invalidreporttype'] = 'Invalid report type specified';
 $string['noaccess'] = 'You do not have access to view this report';
 $string['nopermissiontodownload'] = 'You do not have permission to download this report';
-
-// Feedback Reports strings
-$string['feedback_reports'] = 'Feedback Reports';
-$string['select_course'] = 'Select Course';
-$string['choose_course'] = '-- Choose a Course --';
-$string['select_feedback'] = 'Select Feedback';
-$string['choose_feedback'] = '-- Choose a Feedback --';
-$string['generate_report'] = 'Generate Report';
-$string['feedback_summary'] = 'Feedback Summary';
-$string['course'] = 'Course';
-$string['feedback'] = 'Feedback';
-$string['question'] = 'Question';
-$string['excellent'] = 'Excellent';
-$string['good'] = 'Good';
-$string['needs_improvement'] = 'Needs Improvement';
-$string['total_responses'] = 'Total Responses';
-$string['avg_score'] = 'Avg Score';
-$string['category'] = 'Category';
-$string['no_feedback_data'] = 'No Feedback Data Available';
-$string['select_filters_message'] = 'Please select the appropriate filters to view feedback reports.';
