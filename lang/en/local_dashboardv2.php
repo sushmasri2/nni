@@ -27,11 +27,58 @@ $string['module'] = 'Module {$a}';
 $string['current_role'] = 'Current Role:';
 $string['required_roles'] = 'Required Roles:';
 $string['contact_admin'] = 'Please contact your system administrator if you believe this is an error.';
-$string['newregistrations'] = 'New registrations';
+$string['newregistrations'] = 'New Registrations';
 $string['courseenrolments'] = 'Enrollment Count';
 $string['coursecompletions'] = 'Completion Count';
-$string['activeusers'] = 'Active users';
-$string['inactiveusers'] = 'In Active users';
+$string['activeusers'] = 'Active Users';
+$string['inactiveusers'] = 'Inactive Users';
 $string['download_table'] = 'Download Users Table';
 $string['search_users'] = 'Search Users';
 $string['search'] = 'Search';
+
+// Reports page strings
+$string['reports'] = 'Reports';
+$string['report'] = 'Report';
+$string['back_to_dashboard'] = 'Back to Dashboard';
+$string['download_report'] = 'Download Report';
+$string['report_summary'] = 'Report Summary';
+$string['total_records'] = 'Total Records';
+$string['filtered_by_area_manager'] = 'Filtered by Area Manager';
+$string['filtered_by_nutrition_officer'] = 'Filtered by Nutrition Officer';
+$string['no_report_data'] = 'No Report Data Available';
+$string['no_data_description'] = 'No data found for the selected criteria. Try adjusting your filters.';
+
+// Report-specific strings
+$string['registration_date'] = 'Registration Date';
+$string['first_access'] = 'First Access';
+$string['completion_count'] = 'Completions';
+$string['completion_date'] = 'Latest Completion';
+$string['completion_progress'] = 'Progress';
+$string['last_login'] = 'Last Login';
+$string['activity_count'] = 'Activities (30d)';
+$string['last_activity'] = 'Last Activity';
+
+// Error messages
+$string['invalidreporttype'] = 'Invalid report type specified';
+$string['noaccess'] = 'You do not have access to view this report';
+$string['nopermissiontodownload'] = 'You do not have permission to download this report';
+
+// Feedback Reports strings
+$string['feedback_reports'] = 'Feedback Reports';
+$string['select_course'] = 'Select Course';
+$string['choose_course'] = '-- Choose a Course --';
+$string['select_feedback'] = 'Select Feedback';
+$string['choose_feedback'] = '-- Choose a Feedback --';
+$string['generate_report'] = 'Generate Report';
+$string['feedback_summary'] = 'Feedback Summary';
+$string['course'] = 'Course';
+$string['feedback'] = 'Feedback';
+$string['question'] = 'Question';
+$string['excellent'] = 'Excellent';
+$string['good'] = 'Good';
+$string['needs_improvement'] = 'Needs Improvement';
+$string['total_responses'] = 'Total Responses';
+$string['avg_score'] = 'Avg Score';
+$string['category'] = 'Category';
+$string['no_feedback_data'] = 'No Feedback Data Available';
+$string['select_filters_message'] = 'Please select the appropriate filters to view feedback reports.';

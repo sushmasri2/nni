@@ -34,20 +34,27 @@
 .dashboard-section {
     background-color: #fff;
     padding: 20px;
-    border-radius: 10px;}
+    border-radius: 10px;
+}
 
 .insight-wrapper {
     border-radius: 13px;
     min-height: 5rem;
     box-shadow: 0 7px 14px 0 rgba(59, 65, 94, 0.1), 0 3px 6px 0 rgba(0, 0, 0, 0.07);
     background: white;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
+
+.insight-wrapper:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 20px 0 rgba(59, 65, 94, 0.15), 0 5px 10px 0 rgba(0, 0, 0, 0.1);
+}
+
 .insight {
     max-width: 20% !important;
 }
 
 /* Form Styles */
-
 .form-group {
     margin-bottom: 20px;
 }
@@ -81,7 +88,8 @@
 .form-group select:hover {
     border-color: #0073aa;
 }
-#download-users-table{
+
+#download-users-table {
     float: inline-end;
 }
 
@@ -125,6 +133,94 @@
 
 .user-data-table tbody tr:nth-child(even) {
     background-color: #fafbfc;
+}
+
+/* Reports Page Styles */
+.reports-header {
+    background: linear-gradient(135deg, #0073aa, #005177);
+    color: white;
+    padding: 30px;
+    margin: -15px -15px 30px -15px;
+    border-radius: 10px;
+}
+
+.reports-header h2 {
+    color: white;
+    margin: 0;
+}
+
+.reports-header .text-muted {
+    color: rgba(255, 255, 255, 0.8) !important;
+}
+
+.reports-filters-section .card {
+    border: none;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+.reports-summary .alert {
+    border-left: 4px solid #0073aa;
+    background-color: #f8f9fa;
+    border-color: #0073aa;
+}
+
+.reports-data-table {
+    font-size: 13px;
+}
+
+.reports-data-table th {
+    background: linear-gradient(135deg, #343a40, #495057) !important;
+    color: white;
+    font-size: 12px;
+    white-space: nowrap;
+    padding: 12px 8px;
+}
+
+.reports-data-table td {
+    padding: 10px 8px;
+    vertical-align: middle;
+    white-space: nowrap;
+}
+
+.reports-data-table .progress {
+    margin: 0;
+    font-size: 11px;
+}
+
+.reports-data-table .badge {
+    font-size: 11px;
+    padding: 4px 8px;
+}
+
+/* Progress Bar Colors */
+.progress-bar {
+    background-color: #28a745;
+}
+
+.progress-bar[style*="width: 0%"] {
+    background-color: #dc3545;
+}
+
+.progress-bar[style*="width: 100%"] {
+    background-color: #007bff;
+}
+
+/* Badge Colors */
+.badge-primary {
+    background-color: #007bff;
+}
+
+.badge-success {
+    background-color: #28a745;
+}
+
+.badge-info {
+    background-color: #17a2b8;
+}
+
+.badge-warning {
+    background-color: #ffc107;
+    color: #212529;
 }
 
 /* Message Styles */
@@ -184,13 +280,37 @@
     }
 }
 
+/* Button Styles */
+.btn-outline-primary {
+    border: 1px solid #0073aa;
+    color: #0073aa;
+    background: transparent;
+    font-size: 12px;
+    padding: 4px 8px;
+    transition: all 0.2s ease;
+}
+
+.btn-outline-primary:hover {
+    background: #0073aa;
+    color: white;
+}
+
+/* Role Badge */
+.role-badge {
+    background: rgba(255, 255, 255, 0.2);
+    padding: 2px 8px;
+    border-radius: 12px;
+    font-size: 12px;
+    font-weight: normal;
+}
+
 /* Responsive Design */
 @media (max-width: 768px) {
     .dashboard-section {
         padding: 20px;
     }
 
-    .header h1 {
+    .header h1, .reports-header h2 {
         font-size: 24px;
     }
 
@@ -198,12 +318,132 @@
         max-width: 100%;
     }
 
-    .user-data-table {
+    .user-data-table, .reports-data-table {
         font-size: 12px;
     }
 
     .user-data-table th,
-    .user-data-table td {
-        padding: 10px 8px;
+    .user-data-table td,
+    .reports-data-table th,
+    .reports-data-table td {
+        padding: 8px 6px;
+    }
+
+    .insight {
+        max-width: 100% !important;
+    }
+
+    .reports-header {
+        margin: -15px -15px 20px -15px;
+        padding: 20px;
+    }
+}
+
+@media (max-width: 576px) {
+    .reports-data-table th,
+    .reports-data-table td {
+        font-size: 11px;
+        padding: 6px 4px;
+    }
+}
+/* Feedback Reports Styles */
+.feedback-filters-section .card {
+    border: none;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    border-radius: 10px;
+}
+
+.feedback-summary .alert {
+    border-left: 4px solid #17a2b8;
+    background-color: #d1ecf1;
+    border-color: #bee5eb;
+    color: #0c5460;
+}
+
+.feedback-data-table {
+    font-size: 14px;
+}
+
+.feedback-data-table th {
+    background: linear-gradient(135deg, #17a2b8, #138496) !important;
+    color: white;
+    font-size: 12px;
+    text-align: center;
+    padding: 12px 8px;
+    border: none;
+}
+
+.feedback-data-table td {
+    padding: 12px 8px;
+    vertical-align: middle;
+    border-bottom: 1px solid #dee2e6;
+}
+
+.feedback-data-table tbody tr:hover {
+    background-color: #f8f9fa;
+}
+
+.feedback-data-table .badge {
+    font-size: 12px;
+    padding: 5px 10px;
+    min-width: 35px;
+}
+
+.badge-success {
+    background-color: #28a745;
+}
+
+.badge-primary {
+    background-color: #007bff;
+}
+
+.badge-warning {
+    background-color: #ffc107;
+    color: #212529;
+}
+
+.badge-danger {
+    background-color: #dc3545;
+}
+
+/* Form styling for feedback reports */
+#feedback-filters-form .form-group {
+    margin-bottom: 1rem;
+}
+
+#feedback-filters-form label {
+    font-weight: 600;
+    color: #495057;
+    margin-bottom: 0.5rem;
+}
+
+#feedback-filters-form select {
+    border: 2px solid #ced4da;
+    border-radius: 6px;
+    padding: 8px 12px;
+    font-size: 14px;
+    transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+}
+
+#feedback-filters-form select:focus {
+    border-color: #17a2b8;
+    box-shadow: 0 0 0 0.2rem rgba(23, 162, 184, 0.25);
+}
+
+/* Responsive adjustments for feedback reports */
+@media (max-width: 768px) {
+    .feedback-data-table {
+        font-size: 12px;
+    }
+    
+    .feedback-data-table th,
+    .feedback-data-table td {
+        padding: 8px 4px;
+    }
+    
+    .feedback-data-table .badge {
+        font-size: 10px;
+        padding: 3px 6px;
+        min-width: 25px;
     }
 }

@@ -23,6 +23,18 @@ class renderer extends plugin_renderer_base {
     }
     
     /**
+     * Render the reports page
+     */
+    public function render_reports_page(reports_page $page) {
+        // Add JavaScript file
+        $this->page->requires->js('/local/dashboardv2/js/reports.js');
+        
+        // Export data and render template
+        $data = $page->export_for_template($this);
+        return $this->render_from_template('local_dashboardv2/reports', $data);
+    }
+    
+    /**
      * Render access denied message
      */
     public function render_access_denied($current_role) {
@@ -32,5 +44,17 @@ class renderer extends plugin_renderer_base {
         ];
         
         return $this->render_from_template('local_dashboardv2/access_denied', $context);
+    }
+    /**
+     * Add this method to the existing renderer.php file
+     * Render the feedback reports page
+     */
+    public function render_feedback_reports_page(feedback_reports_page $page) {
+        // Add JavaScript file
+        $this->page->requires->js('/local/dashboardv2/js/feedback_reports.js');
+        
+        // Export data and render template
+        $data = $page->export_for_template($this);
+        return $this->render_from_template('local_dashboardv2/feedback_reports', $data);
     }
 }
