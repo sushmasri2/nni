@@ -1,97 +1,121 @@
 // Simple dashboard.js - Place in /local/dashboardv2/js/dashboard.js
 
 var Dashboard = {
-    
-    init: function() {
+
+    init: function () {
         this.bindEvents();
     },
-    
-    bindEvents: function() {
+
+    bindEvents: function () {
         var self = this;
-        
+
         // AJAX form submission for dropdowns
         var areaManagerSelect = document.getElementById('selected_area_manager');
         var nutritionOfficerSelect = document.getElementById('selected_nutrition_officer');
-        
+        var managerSelect = document.getElementById('feedback_area_manager') ||
+            document.getElementById('feedback_nutrition_officer');
+
         if (areaManagerSelect) {
-            areaManagerSelect.addEventListener('change', function() {
+            areaManagerSelect.addEventListener('change', function () {
                 self.loadUsersData();
             });
         }
-        
+
         if (nutritionOfficerSelect) {
-            nutritionOfficerSelect.addEventListener('change', function() {
+            nutritionOfficerSelect.addEventListener('change', function () {
                 self.loadUsersData();
             });
         }
-        
+
         // Search functionality
         var searchInput = document.getElementById('search-users');
         if (searchInput) {
-            searchInput.addEventListener('input', function() {
+            searchInput.addEventListener('input', function () {
                 self.searchUsers(this.value);
             });
         }
-        
+
         // Download button
         var downloadBtn = document.getElementById('download-users-table');
         if (downloadBtn) {
-            downloadBtn.addEventListener('click', function() {
+            downloadBtn.addEventListener('click', function () {
                 self.downloadCSV();
             });
         }
+        if (managerSelect) {
+            managerSelect.addEventListener('change', function () {
+                self.loadCourses(this.value);
+            });
+        }
+
+        // Course selection change
+        var courseSelect = document.getElementById('feedback_course');
+        if (courseSelect) {
+            courseSelect.addEventListener('change', function () {
+                self.loadFeedbacks(this.value);
+            });
+        }
+
+        // Feedback selection change
+        var feedbackSelect = document.getElementById('feedback_activity');
+        if (feedbackSelect) {
+            feedbackSelect.addEventListener('change', function () {
+                self.loadFeedbackResponses();
+            });
+        }
+
     },
-    
-    loadUsersData: function() {
-        var selectedAreaManager = document.getElementById('selected_area_manager') ? 
+
+    loadUsersData: function () {
+        var selectedAreaManager = document.getElementById('selected_area_manager') ?
             document.getElementById('selected_area_manager').value : '';
-        var selectedNutritionOfficer = document.getElementById('selected_nutrition_officer') ? 
+        var selectedNutritionOfficer = document.getElementById('selected_nutrition_officer') ?
             document.getElementById('selected_nutrition_officer').value : '';
-        
+
         // Show loading indicator
         var container = document.querySelector('.users-table-container');
         if (container) {
             container.innerHTML = '<div class="text-center"><i class="fa fa-spinner fa-spin"></i> Loading...</div>';
         }
-        
+
         // Simple AJAX request using fetch
         var formData = new FormData();
         formData.append('area_manager', selectedAreaManager);
         formData.append('nutrition_officer', selectedNutritionOfficer);
         formData.append('sesskey', M.cfg.sesskey);
-        
+
         fetch(M.cfg.wwwroot + '/local/dashboardv2/ajax_get_users_data.php', {
             method: 'POST',
             body: formData
         })
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                this.updateUsersTable(data.data);
-            } else {
-                console.error('Error loading data:', data.message);
-                if (container) {
-                    container.innerHTML = '<div class="alert alert-danger">Error loading data</div>';
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    this.updateUsersTable(data.data);
+                } else {
+                    console.error('Error loading data:', data.message);
+                    if (container) {
+                        container.innerHTML = '<div class="alert alert-danger">Error loading data</div>';
+                    }
                 }
-            }
-        })
-        .catch(error => {
-            console.error('Ajax error:', error);
-            if (container) {
-                container.innerHTML = '<div class="alert alert-danger">Network error</div>';
-            }
-        });
+            })
+            .catch(error => {
+                console.error('Ajax error:', error);
+                if (container) {
+                    container.innerHTML = '<div class="alert alert-danger">Network error</div>';
+                }
+            });
     },
-    
-    updateUsersTable: function(data) {
+
+    updateUsersTable: function (data) {
         var container = document.querySelector('.users-table-container');
         if (!container) return;
-        
+
         if (!data || data.length === 0) {
             container.innerHTML = '<div class="no-data"><p>No users found.</p></div>';
             return;
         }
-        
+
         var tableHTML = `
             <table class="table table-striped users-data-table table-responsive">
                 <thead>
@@ -114,8 +138,8 @@ var Dashboard = {
                 </thead>
                 <tbody>
         `;
-        
-        data.forEach(function(user) {
+
+        data.forEach(function (user) {
             tableHTML += `
                 <tr>
                     <td>${user.username}</td>
@@ -135,30 +159,30 @@ var Dashboard = {
                 </tr>
             `;
         });
-        
+
         tableHTML += '</tbody></table>';
         container.innerHTML = tableHTML;
     },
-    
-    searchUsers: function(searchTerm) {
+
+    searchUsers: function (searchTerm) {
         var table = document.querySelector('.users-data-table');
         if (!table) return;
-        
+
         var rows = table.querySelectorAll('tbody tr');
-        
+
         if (!searchTerm) {
-            rows.forEach(function(row) {
+            rows.forEach(function (row) {
                 row.style.display = '';
             });
             return;
         }
-        
+
         searchTerm = searchTerm.toLowerCase();
-        
-        rows.forEach(function(row) {
+
+        rows.forEach(function (row) {
             var cells = row.querySelectorAll('td');
             var found = false;
-            
+
             // Search in specific columns: username, fullname, email, spoc, regional_head, area_manager, nutrition_officer
             for (var i = 0; i <= 6; i++) {
                 if (cells[i] && cells[i].textContent.toLowerCase().includes(searchTerm)) {
@@ -166,22 +190,22 @@ var Dashboard = {
                     break;
                 }
             }
-            
+
             row.style.display = found ? '' : 'none';
         });
     },
-    
-    downloadCSV: function() {
-        var selectedAreaManager = document.getElementById('selected_area_manager') ? 
+
+    downloadCSV: function () {
+        var selectedAreaManager = document.getElementById('selected_area_manager') ?
             document.getElementById('selected_area_manager').value : '';
-        var selectedNutritionOfficer = document.getElementById('selected_nutrition_officer') ? 
+        var selectedNutritionOfficer = document.getElementById('selected_nutrition_officer') ?
             document.getElementById('selected_nutrition_officer').value : '';
-        
+
         // Create form and submit for download
         var form = document.createElement('form');
         form.method = 'POST';
         form.action = M.cfg.wwwroot + '/local/dashboardv2/download.php';
-        
+
         if (selectedAreaManager) {
             var input1 = document.createElement('input');
             input1.type = 'hidden';
@@ -189,7 +213,7 @@ var Dashboard = {
             input1.value = selectedAreaManager;
             form.appendChild(input1);
         }
-        
+
         if (selectedNutritionOfficer) {
             var input2 = document.createElement('input');
             input2.type = 'hidden';
@@ -197,20 +221,187 @@ var Dashboard = {
             input2.value = selectedNutritionOfficer;
             form.appendChild(input2);
         }
-        
+
         var sesskey = document.createElement('input');
         sesskey.type = 'hidden';
         sesskey.name = 'sesskey';
         sesskey.value = M.cfg.sesskey;
         form.appendChild(sesskey);
-        
+
         document.body.appendChild(form);
         form.submit();
         document.body.removeChild(form);
+    },
+    loadCourses: function (managerId) {
+        var courseSelect = document.getElementById('feedback_course');
+        var feedbackSelect = document.getElementById('feedback_activity');
+
+        // Reset dependent dropdowns
+        courseSelect.innerHTML = '<option value="">-- Choose Course --</option>';
+        feedbackSelect.innerHTML = '<option value="">-- Choose Feedback --</option>';
+        courseSelect.disabled = true;
+        feedbackSelect.disabled = true;
+
+        if (!managerId) {
+            this.clearFeedbackResponses();
+            return;
+        }
+
+        var formData = new FormData();
+        formData.append('manager', managerId);
+        formData.append('sesskey', M.cfg.sesskey);
+
+        fetch(M.cfg.wwwroot + '/local/dashboardv2/ajax_get_courses.php', {
+            method: 'POST',
+            body: formData
+        })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success && data.data.length > 0) {
+                    data.data.forEach(function (course) {
+                        var option = document.createElement('option');
+                        option.value = course.id;
+                        option.textContent = course.fullname;
+                        courseSelect.appendChild(option);
+                    });
+                    courseSelect.disabled = false;
+                }
+            })
+            .catch(error => {
+                console.error('Error loading courses:', error);
+            });
+    },
+
+    loadFeedbacks: function (courseId) {
+        var feedbackSelect = document.getElementById('feedback_activity');
+
+        // Reset feedback dropdown
+        feedbackSelect.innerHTML = '<option value="">-- Choose Feedback --</option>';
+        feedbackSelect.disabled = true;
+
+        if (!courseId) {
+            this.clearFeedbackResponses();
+            return;
+        }
+
+        var formData = new FormData();
+        formData.append('courseid', courseId);
+        formData.append('sesskey', M.cfg.sesskey);
+
+        fetch(M.cfg.wwwroot + '/local/dashboardv2/ajax_get_feedbacks.php', {
+            method: 'POST',
+            body: formData
+        })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success && data.data.length > 0) {
+                    data.data.forEach(function (feedback) {
+                        var option = document.createElement('option');
+                        option.value = feedback.id;
+                        option.textContent = feedback.name;
+                        feedbackSelect.appendChild(option);
+                    });
+                    feedbackSelect.disabled = false;
+                } else {
+                    this.showNoFeedbackMessage();
+                }
+            })
+            .catch(error => {
+                console.error('Error loading feedbacks:', error);
+            });
+    },
+
+    loadFeedbackResponses: function () {
+        var managerId = (document.getElementById('feedback_area_manager') ||
+            document.getElementById('feedback_nutrition_officer')).value;
+        var feedbackId = document.getElementById('feedback_activity').value;
+        var container = document.getElementById('feedback-responses-container');
+
+        if (!managerId || !feedbackId) {
+            this.clearFeedbackResponses();
+            return;
+        }
+
+        container.innerHTML = '<div class="text-center"><i class="fa fa-spinner fa-spin"></i> Loading feedback responses...</div>';
+
+        var formData = new FormData();
+        formData.append('manager', managerId);
+        formData.append('feedback_id', feedbackId);
+        formData.append('sesskey', M.cfg.sesskey);
+
+        fetch(M.cfg.wwwroot + '/local/dashboardv2/ajax_get_feedback_responses.php', {
+            method: 'POST',
+            body: formData
+        })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    this.displayFeedbackResponses(data.data);
+                } else {
+                    container.innerHTML = '<div class="alert alert-danger">Error loading responses</div>';
+                }
+            })
+            .catch(error => {
+                console.error('Error loading feedback responses:', error);
+                container.innerHTML = '<div class="alert alert-danger">Network error</div>';
+            });
+    },
+
+    displayFeedbackResponses: function (responses) {
+        var container = document.getElementById('feedback-responses-container');
+
+        if (!responses || responses.length === 0) {
+            container.innerHTML = '<div class="no-data"><p>No feedback responses found.</p></div>';
+            return;
+        }
+
+        var tableHTML = `
+            <h5>Feedback Responses (${responses.length} users)</h5>
+            <table class="table table-striped table-responsive">
+                <thead>
+                    <tr>
+                        <th>Username</th>
+                        <th>Full Name</th>
+                        <th>Email</th>
+                        <th>SPOC</th>
+                        <th>Area Manager</th>
+                        <th>Nutrition Officer</th>
+                        <th>Response Date</th>
+                    </tr>
+                </thead>
+                <tbody>
+        `;
+
+        responses.forEach(function (user) {
+            tableHTML += `
+                <tr>
+                    <td><strong>${user.username}</strong></td>
+                    <td>${user.fullname}</td>
+                    <td>${user.email}</td>
+                    <td>${user.spoc || '-'}</td>
+                    <td>${user.area_manager || '-'}</td>
+                    <td>${user.nutrition_officer || '-'}</td>
+                    <td>${user.response_date || '-'}</td>
+                </tr>
+            `;
+        });
+
+        tableHTML += '</tbody></table>';
+        container.innerHTML = tableHTML;
+    },
+
+    clearFeedbackResponses: function () {
+        var container = document.getElementById('feedback-responses-container');
+        container.innerHTML = '<div class="no-data"><p>Select manager, course and feedback to view responses.</p></div>';
+    },
+
+    showNoFeedbackMessage: function () {
+        var container = document.getElementById('feedback-responses-container');
+        container.innerHTML = '<div class="no-data"><p>No feedback activities found in this course.</p></div>';
     }
 };
 
 // Initialize when DOM is ready
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', function () {
     Dashboard.init();
 });

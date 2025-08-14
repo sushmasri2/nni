@@ -148,6 +148,63 @@
             {{/has_users_data}}
         </div>
         </div>
+        <div class="dashboard-section mt-4" id="feedback-section">
+    <h4>Feedback Management</h4>
+    
+    <div class="row">
+        <!-- Manager Selection -->
+        <div class="col-md-4">
+            <div class="form-group">
+                {{#is_spoc}}
+                <label for="feedback_area_manager">Select Area Manager:</label>
+                <select id="feedback_area_manager" class="form-control">
+                    <option value="">-- Choose Area Manager --</option>
+                    {{#area_managers}}
+                    <option value="{{username}}">{{fullname}} ({{username}})</option>
+                    {{/area_managers}}
+                </select>
+                {{/is_spoc}}
+                
+                {{#is_area_manager}}
+                <label for="feedback_nutrition_officer">Select Nutrition Officer:</label>
+                <select id="feedback_nutrition_officer" class="form-control">
+                    <option value="">-- Choose Nutrition Officer --</option>
+                    {{#nutrition_officers}}
+                    <option value="{{username}}">{{fullname}} ({{username}})</option>
+                    {{/nutrition_officers}}
+                </select>
+                {{/is_area_manager}}
+            </div>
+        </div>
+        
+        <!-- Course Selection -->
+        <div class="col-md-4">
+            <div class="form-group">
+                <label for="feedback_course">Select Course:</label>
+                <select id="feedback_course" class="form-control" disabled>
+                    <option value="">-- Choose Course --</option>
+                </select>
+            </div>
+        </div>
+        
+        <!-- Feedback Selection -->
+        <div class="col-md-4">
+            <div class="form-group">
+                <label for="feedback_activity">Select Feedback:</label>
+                <select id="feedback_activity" class="form-control" disabled>
+                    <option value="">-- Choose Feedback --</option>
+                </select>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Feedback Responses Container -->
+    <div id="feedback-responses-container" class="mt-4">
+        <div class="no-data">
+            <p>Select manager, course and feedback to view responses.</p>
+        </div>
+    </div>
+</div>
     {{/has_access}}
 
     {{^has_access}}

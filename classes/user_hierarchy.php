@@ -6,7 +6,7 @@ defined('MOODLE_INTERNAL') || die();
 class user_hierarchy
 {
     // ... existing methods remain the same ...
-    
+
     /**
      * Get current user's custom field data
      */
@@ -250,21 +250,21 @@ class user_hierarchy
     public static function get_report_data($report_type, $role_type, $identifier)
     {
         global $DB;
-        
+
         // Map role types to field IDs
         $field_mapping = [
             'spoc' => 8,
             'area_manager' => 11,
             'nutrition_officer' => 12
         ];
-        
+
         if (!isset($field_mapping[$role_type])) {
             return [];
         }
-        
+
         $field_id = $field_mapping[$role_type];
         $exclude_self = "AND u.username != ud{$field_id}.data";
-        
+
         // Base query components
         $base_select = "
             SELECT DISTINCT u.id, u.username, u.firstname, u.lastname, u.email,
@@ -272,7 +272,7 @@ class user_hierarchy
                    ud8.data AS spoc, ud11.data AS area_manager, 
                    ud12.data AS nutrition_officer, ud13.data AS regional_head,
                    " . self::get_module_completion_columns();
-                   
+
         $base_from = "
             FROM {user} u
             LEFT JOIN {user_info_data} ud8 ON ud8.userid = u.id AND ud8.fieldid = 8
@@ -283,25 +283,25 @@ class user_hierarchy
             LEFT JOIN {course_modules_completion} cmc ON cmc.userid = u.id AND cmc.completionstate = 1
             LEFT JOIN {course_modules} cm ON cmc.coursemoduleid = cm.id
             LEFT JOIN {course_sections} cs ON cm.section = cs.id";
-            
+
         $base_where = "
             WHERE u.deleted = 0 AND ud{$field_id}.data = ? {$exclude_self} AND ra.roleid = 5 
             AND (cs.course = 6 OR cs.course IS NULL)";
-            
+
         $base_group = "
             GROUP BY u.id, u.username, u.firstname, u.lastname, u.email, 
                      u.timecreated, u.firstaccess, u.lastaccess,
                      ud8.data, ud11.data, ud12.data, ud13.data";
-                     
+
         $base_order = " ORDER BY u.username";
-        
+
         // Customize query based on report type
         switch ($report_type) {
             case 'newregistrations':
                 // Recent registrations (last 30 days)
                 $additional_where = " AND u.timecreated > " . (time() - (30 * 24 * 60 * 60));
                 break;
-                
+
             case 'courseenrolments':
                 $base_select .= ", COUNT(DISTINCT ue.id) as enrolment_count, MAX(ue.timecreated) as enrolment_date";
                 $base_from .= " LEFT JOIN {user_enrolments} ue ON ue.userid = u.id 
@@ -309,14 +309,14 @@ class user_hierarchy
                 $additional_where = " AND ue.id IS NOT NULL";
                 $base_group .= ", ue.userid";
                 break;
-                
+
             case 'coursecompletions':
                 $base_select .= ", COUNT(DISTINCT cc.id) as completion_count, MAX(cc.timecompleted) as completion_date,
                                 CASE WHEN COUNT(DISTINCT cc.id) > 0 THEN CONCAT(COUNT(DISTINCT cc.id), ' completed') ELSE '0 completed' END as completion_progress";
                 $base_from .= " LEFT JOIN {course_completions} cc ON cc.userid = u.id";
                 $additional_where = " AND cc.timecompleted IS NOT NULL";
                 break;
-                
+
             case 'activeusers':
                 // Users active in last 30 days
                 $base_select .= ", 
@@ -324,7 +324,7 @@ class user_hierarchy
                      AND l.timecreated > " . (time() - (30 * 24 * 60 * 60)) . ") as activity_count";
                 $additional_where = " AND u.lastaccess > " . (time() - (30 * 24 * 60 * 60));
                 break;
-                
+
             case 'inactiveusers':
                 // Users inactive for more than 30 days
                 $base_select .= ", 
@@ -333,13 +333,69 @@ class user_hierarchy
                     END as days_inactive";
                 $additional_where = " AND (u.lastaccess = 0 OR u.lastaccess < " . (time() - (30 * 24 * 60 * 60)) . ")";
                 break;
-                
+
             default:
                 $additional_where = "";
         }
-        
+
         $final_query = $base_select . $base_from . $base_where . ($additional_where ?? '') . $base_group . $base_order;
-        
+
         return $DB->get_records_sql($final_query, [$identifier]);
+    }
+    /**
+     * Get courses enrolled by users under area manager/nutrition officer
+     */
+    public static function get_courses_by_hierarchy($field_id, $identifier)
+    {
+        global $DB;
+
+        return $DB->get_records_sql("
+        SELECT DISTINCT c.id, c.fullname, c.shortname
+        FROM {course} c
+        JOIN {enrol} e ON e.courseid = c.id
+        JOIN {user_enrolments} ue ON ue.enrolid = e.id
+        JOIN {user} u ON u.id = ue.userid
+        LEFT JOIN {user_info_data} ud ON ud.userid = u.id AND ud.fieldid = ?
+        WHERE ud.data = ? AND c.id != 1
+        ORDER BY c.fullname", [$field_id, $identifier]);
+    }
+
+    /**
+     * Get feedback activities in a specific course
+     */
+    public static function get_course_feedbacks($courseid)
+    {
+        global $DB;
+
+        return $DB->get_records_sql("
+        SELECT f.id, f.name, f.intro, cm.id as cmid
+        FROM {feedback} f
+        JOIN {course_modules} cm ON cm.instance = f.id
+        JOIN {modules} m ON m.id = cm.module
+        WHERE f.course = ? AND m.name = 'feedback' AND cm.visible = 1
+        ORDER BY f.name", [$courseid]);
+    }
+
+    /**
+     * Get feedback responses for users under hierarchy
+     */
+    public static function get_feedback_responses($feedback_id, $field_id, $identifier)
+    {
+        global $DB;
+
+        return $DB->get_records_sql("
+        SELECT DISTINCT u.id, u.username, u.firstname, u.lastname, u.email,
+               fc.timemodified as response_date,
+               ud8.data AS spoc, 
+               ud11.data AS area_manager, 
+               ud12.data AS nutrition_officer
+        FROM {user} u
+        LEFT JOIN {user_info_data} ud8 ON ud8.userid = u.id AND ud8.fieldid = 8
+        LEFT JOIN {user_info_data} ud11 ON ud11.userid = u.id AND ud11.fieldid = 11
+        LEFT JOIN {user_info_data} ud12 ON ud12.userid = u.id AND ud12.fieldid = 12
+        LEFT JOIN {user_info_data} ud_filter ON ud_filter.userid = u.id AND ud_filter.fieldid = ?
+        JOIN {feedback_completed} fc ON fc.userid = u.id
+        WHERE ud_filter.data = ? AND fc.feedback = ? AND u.deleted = 0
+        ORDER BY u.username", [$field_id, $identifier, $feedback_id]);
     }
 }
