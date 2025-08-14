@@ -248,10 +248,11 @@ var Dashboard = {
         }
 
         var formData = new FormData();
+        formData.append('action', 'get_courses');
         formData.append('manager', managerId);
         formData.append('sesskey', M.cfg.sesskey);
 
-        fetch(M.cfg.wwwroot + '/local/dashboardv2/ajax_get_courses.php', {
+        fetch(M.cfg.wwwroot + '/local/dashboardv2/ajax_feedback_handler.php', {
             method: 'POST',
             body: formData
         })
@@ -265,6 +266,8 @@ var Dashboard = {
                         courseSelect.appendChild(option);
                     });
                     courseSelect.disabled = false;
+                } else {
+                    console.log('No courses found for manager:', managerId);
                 }
             })
             .catch(error => {
@@ -285,10 +288,11 @@ var Dashboard = {
         }
 
         var formData = new FormData();
+        formData.append('action', 'get_feedbacks');
         formData.append('courseid', courseId);
         formData.append('sesskey', M.cfg.sesskey);
 
-        fetch(M.cfg.wwwroot + '/local/dashboardv2/ajax_get_feedbacks.php', {
+        fetch(M.cfg.wwwroot + '/local/dashboardv2/ajax_feedback_handler.php', {
             method: 'POST',
             body: formData
         })
@@ -325,11 +329,12 @@ var Dashboard = {
         container.innerHTML = '<div class="text-center"><i class="fa fa-spinner fa-spin"></i> Loading feedback responses...</div>';
 
         var formData = new FormData();
+        formData.append('action', 'get_responses');
         formData.append('manager', managerId);
         formData.append('feedback_id', feedbackId);
         formData.append('sesskey', M.cfg.sesskey);
 
-        fetch(M.cfg.wwwroot + '/local/dashboardv2/ajax_get_feedback_responses.php', {
+        fetch(M.cfg.wwwroot + '/local/dashboardv2/ajax_feedback_handler.php', {
             method: 'POST',
             body: formData
         })
@@ -338,66 +343,13 @@ var Dashboard = {
                 if (data.success) {
                     this.displayFeedbackResponses(data.data);
                 } else {
-                    container.innerHTML = '<div class="alert alert-danger">Error loading responses</div>';
+                    container.innerHTML = '<div class="alert alert-danger">Error loading responses: ' + data.message + '</div>';
                 }
             })
             .catch(error => {
                 console.error('Error loading feedback responses:', error);
                 container.innerHTML = '<div class="alert alert-danger">Network error</div>';
             });
-    },
-
-    displayFeedbackResponses: function (responses) {
-        var container = document.getElementById('feedback-responses-container');
-
-        if (!responses || responses.length === 0) {
-            container.innerHTML = '<div class="no-data"><p>No feedback responses found.</p></div>';
-            return;
-        }
-
-        var tableHTML = `
-            <h5>Feedback Responses (${responses.length} users)</h5>
-            <table class="table table-striped table-responsive">
-                <thead>
-                    <tr>
-                        <th>Username</th>
-                        <th>Full Name</th>
-                        <th>Email</th>
-                        <th>SPOC</th>
-                        <th>Area Manager</th>
-                        <th>Nutrition Officer</th>
-                        <th>Response Date</th>
-                    </tr>
-                </thead>
-                <tbody>
-        `;
-
-        responses.forEach(function (user) {
-            tableHTML += `
-                <tr>
-                    <td><strong>${user.username}</strong></td>
-                    <td>${user.fullname}</td>
-                    <td>${user.email}</td>
-                    <td>${user.spoc || '-'}</td>
-                    <td>${user.area_manager || '-'}</td>
-                    <td>${user.nutrition_officer || '-'}</td>
-                    <td>${user.response_date || '-'}</td>
-                </tr>
-            `;
-        });
-
-        tableHTML += '</tbody></table>';
-        container.innerHTML = tableHTML;
-    },
-
-    clearFeedbackResponses: function () {
-        var container = document.getElementById('feedback-responses-container');
-        container.innerHTML = '<div class="no-data"><p>Select manager, course and feedback to view responses.</p></div>';
-    },
-
-    showNoFeedbackMessage: function () {
-        var container = document.getElementById('feedback-responses-container');
-        container.innerHTML = '<div class="no-data"><p>No feedback activities found in this course.</p></div>';
     }
 };
 
