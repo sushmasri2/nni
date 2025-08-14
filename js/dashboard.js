@@ -1,4 +1,4 @@
-// Simple dashboard.js - Place in /local/dashboardv2/js/dashboard.js
+// Corrected dashboard.js - Place in /local/dashboardv2/js/dashboard.js
 
 var Dashboard = {
     
@@ -40,6 +40,245 @@ var Dashboard = {
                 self.downloadCSV();
             });
         }
+        
+        // Feedback section event listeners
+        var courseSelect = document.getElementById('selected_course');
+        var feedbackSelect = document.getElementById('selected_feedback');
+        var feedbackAreaManager = document.getElementById('feedback_area_manager');
+        var feedbackNutritionOfficer = document.getElementById('feedback_nutrition_officer');
+        
+        if (courseSelect) {
+            courseSelect.addEventListener('change', function() {
+                // Reset feedback selection when course changes
+                if (feedbackSelect) {
+                    feedbackSelect.innerHTML = '<option value="">-- Choose a Feedback --</option>';
+                    feedbackSelect.disabled = true;
+                }
+                self.loadFeedbackData();
+            });
+        }
+        
+        if (feedbackSelect) {
+            feedbackSelect.addEventListener('change', function() {
+                self.loadFeedbackData();
+            });
+        }
+        
+        if (feedbackAreaManager) {
+            feedbackAreaManager.addEventListener('change', function() {
+                // Reset course and feedback selections when hierarchy changes
+                if (courseSelect) courseSelect.selectedIndex = 0;
+                if (feedbackSelect) {
+                    feedbackSelect.innerHTML = '<option value="">-- Choose a Feedback --</option>';
+                    feedbackSelect.disabled = true;
+                }
+                self.resetFeedbackDisplay();
+            });
+        }
+        
+        if (feedbackNutritionOfficer) {
+            feedbackNutritionOfficer.addEventListener('change', function() {
+                // Reset course and feedback selections when hierarchy changes
+                if (courseSelect) courseSelect.selectedIndex = 0;
+                if (feedbackSelect) {
+                    feedbackSelect.innerHTML = '<option value="">-- Choose a Feedback --</option>';
+                    feedbackSelect.disabled = true;
+                }
+                self.resetFeedbackDisplay();
+            });
+        }
+    },
+    
+    loadFeedbackData: function() {
+        var courseId = document.getElementById('selected_course') ? 
+            document.getElementById('selected_course').value : '';
+        var feedbackId = document.getElementById('selected_feedback') ? 
+            document.getElementById('selected_feedback').value : '';
+        var feedbackAreaManager = document.getElementById('feedback_area_manager') ? 
+            document.getElementById('feedback_area_manager').value : '';
+        var feedbackNutritionOfficer = document.getElementById('feedback_nutrition_officer') ? 
+            document.getElementById('feedback_nutrition_officer').value : '';
+        
+        // If course is selected but no feedback, load feedback list
+        if (courseId && !feedbackId) {
+            this.loadFeedbackList();
+            return;
+        }
+        
+        // If feedback is selected, automatically load and display feedback data
+        if (feedbackId) {
+            var container = document.querySelector('.feedback-data-container');
+            if (container) {
+                container.innerHTML = '<div class="text-center"><i class="fa fa-spinner fa-spin"></i> Loading feedback analysis...</div>';
+            }
+            
+            var formData = new FormData();
+            formData.append('course_id', courseId);
+            formData.append('feedback_id', feedbackId);
+            formData.append('area_manager', feedbackAreaManager);
+            formData.append('nutrition_officer', feedbackNutritionOfficer);
+            formData.append('sesskey', M.cfg.sesskey);
+            
+            fetch(M.cfg.wwwroot + '/local/dashboardv2/ajax_get_feedback_data.php', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success && data.data.feedback_data) {
+                    this.updateFeedbackTable(data.data.feedback_data);
+                } else {
+                    console.error('Error loading feedback:', data.message);
+                    if (container) {
+                        container.innerHTML = '<div class="alert alert-danger">Error loading feedback data</div>';
+                    }
+                }
+            })
+            .catch(error => {
+                console.error('Ajax error:', error);
+                if (container) {
+                    container.innerHTML = '<div class="alert alert-danger">Network error loading feedback</div>';
+                }
+            });
+        } else {
+            this.resetFeedbackDisplay();
+        }
+    },
+    
+    loadFeedbackList: function() {
+        var courseId = document.getElementById('selected_course').value;
+        var feedbackAreaManager = document.getElementById('feedback_area_manager') ? 
+            document.getElementById('feedback_area_manager').value : '';
+        var feedbackNutritionOfficer = document.getElementById('feedback_nutrition_officer') ? 
+            document.getElementById('feedback_nutrition_officer').value : '';
+        
+        var formData = new FormData();
+        formData.append('course_id', courseId);
+        formData.append('area_manager', feedbackAreaManager);
+        formData.append('nutrition_officer', feedbackNutritionOfficer);
+        formData.append('sesskey', M.cfg.sesskey);
+        
+        fetch(M.cfg.wwwroot + '/local/dashboardv2/ajax_get_feedback_data.php', {
+            method: 'POST',
+            body: formData
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success && data.data.feedback_list) {
+                this.updateFeedbackList(data.data.feedback_list);
+            }
+        })
+        .catch(error => {
+            console.error('Ajax error:', error);
+        });
+    },
+    
+    updateFeedbackList: function(feedbackList) {
+        var feedbackSelect = document.getElementById('selected_feedback');
+        if (!feedbackSelect) return;
+        
+        // Clear current options
+        feedbackSelect.innerHTML = '<option value="">-- Choose a Feedback --</option>';
+        
+        // Add new options
+        feedbackList.forEach(function(feedback) {
+            var option = document.createElement('option');
+            option.value = feedback.id;
+            option.textContent = feedback.name;
+            feedbackSelect.appendChild(option);
+        });
+        
+        // Enable the select
+        feedbackSelect.disabled = false;
+        
+        // Reset feedback data display
+        this.resetFeedbackDisplay();
+    },
+    
+    resetFeedbackDisplay: function() {
+        var container = document.querySelector('.feedback-data-container');
+        if (container) {
+            var courseId = document.getElementById('selected_course') ? 
+                document.getElementById('selected_course').value : '';
+            
+            if (!courseId) {
+                container.innerHTML = `
+                    <div class="card">
+                        <div class="card-body text-center py-5">
+                            <div class="no-data">
+                                <i class="fa fa-chart-line fa-3x text-muted mb-3"></i>
+                                <h5 class="text-muted">Follow the steps above to view feedback analysis</h5>
+                                <p class="text-muted">Complete all 3 steps to display detailed feedback data and analysis.</p>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            } else {
+                container.innerHTML = `
+                    <div class="card">
+                        <div class="card-body text-center py-5">
+                            <div class="no-data">
+                                <i class="fa fa-chart-line fa-3x text-muted mb-3"></i>
+                                <h5 class="text-muted">Select a feedback activity to view analysis</h5>
+                                <p class="text-muted">Choose a specific feedback from the dropdown to display detailed analysis.</p>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }
+        }
+    },
+    
+    updateFeedbackTable: function(data) {
+        var container = document.querySelector('.feedback-data-container');
+        if (!container) return;
+        
+        if (!data || data.length === 0) {
+            container.innerHTML = '<div class="no-data"><p>No feedback data found for selected criteria.</p></div>';
+            return;
+        }
+        
+        var tableHTML = `
+            <div class="table-responsive">
+                <table class="table table-striped feedback-table">
+                    <thead>
+                        <tr>
+                            <th>Question</th>
+                            <th>Excellent (4)</th>
+                            <th>Good (3)</th>
+                            <th>Average (2)</th>
+                            <th>Needs Improvement (1)</th>
+                            <th>Average Score</th>
+                            <th>Category</th>
+                            <th>Total Responses</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+        `;
+        
+        data.forEach(function(feedback) {
+            var badgeClass = 'badge-secondary';
+            if (feedback.final_category === 'Excellent') badgeClass = 'badge-success';
+            else if (feedback.final_category === 'Good') badgeClass = 'badge-primary';
+            else if (feedback.final_category === 'Average') badgeClass = 'badge-warning';
+            else if (feedback.final_category === 'Needs Improvement') badgeClass = 'badge-danger';
+            
+            tableHTML += `
+                <tr>
+                    <td><strong>${feedback.question}</strong></td>
+                    <td><span class="badge badge-success">${feedback.excellent}</span></td>
+                    <td><span class="badge badge-primary">${feedback.good}</span></td>
+                    <td><span class="badge badge-warning">${feedback.average}</span></td>
+                    <td><span class="badge badge-danger">${feedback.needs_improvement}</span></td>
+                    <td><strong>${feedback.avg_score}</strong></td>
+                    <td><span class="badge ${badgeClass}">${feedback.final_category}</span></td>
+                    <td><strong>${feedback.total_responses}</strong></td>
+                </tr>
+            `;
+        });
+        
+        tableHTML += '</tbody></table></div>';
+        container.innerHTML = tableHTML;
     },
     
     loadUsersData: function() {

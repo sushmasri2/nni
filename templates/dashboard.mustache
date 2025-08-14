@@ -160,4 +160,105 @@
             <p>{{#str}}contact_admin, local_dashboardv2{{/str}}</p>
         </div>
     {{/has_access}}
+    {{! Add this section to your dashboard.mustache template }}
+
+<!-- Feedback Section -->
+{{#has_access}}
+<div class="dashboard-section mt-4">
+    <h4 class="mb-3">📊 Feedback Analysis</h4>
+    
+    <div class="row mb-4">
+        <!-- Step 1: Area Manager/Nutrition Officer Filter (First) -->
+        <div class="col-md-4 mb-3">
+            {{#is_spoc}}
+            {{#has_area_managers}}
+            <div class="form-group">
+                <label for="feedback_area_manager"><span class="badge badge-primary">1</span> <strong>Select Area Manager:</strong></label>
+                <select name="feedback_area_manager" id="feedback_area_manager" class="form-control">
+                    <option value="">-- All Area Managers --</option>
+                    {{#area_managers}}
+                    <option value="{{username}}">{{fullname}}</option>
+                    {{/area_managers}}
+                </select>
+            </div>
+            {{/has_area_managers}}
+            {{/is_spoc}}
+            
+            {{#is_area_manager}}
+            {{#has_nutrition_officers}}
+            <div class="form-group">
+                <label for="feedback_nutrition_officer"><span class="badge badge-primary">1</span> <strong>Select Nutrition Officer:</strong></label>
+                <select name="feedback_nutrition_officer" id="feedback_nutrition_officer" class="form-control">
+                    <option value="">-- All Nutrition Officers --</option>
+                    {{#nutrition_officers}}
+                    <option value="{{username}}">{{fullname}}</option>
+                    {{/nutrition_officers}}
+                </select>
+            </div>
+            {{/has_nutrition_officers}}
+            {{/is_area_manager}}
+        </div>
+        
+        <!-- Step 2: Course Selection (Second) -->
+        <div class="col-md-4 mb-3">
+            {{#has_courses_with_feedback}}
+            <div class="form-group">
+                <label for="selected_course"><span class="badge badge-success">2</span> <strong>Select Course:</strong></label>
+                <select name="selected_course" id="selected_course" class="form-control">
+                    <option value="">-- Choose a Course --</option>
+                    {{#courses_with_feedback}}
+                    <option value="{{id}}" {{#selected}}selected{{/selected}}>{{fullname}}</option>
+                    {{/courses_with_feedback}}
+                </select>
+            </div>
+            {{/has_courses_with_feedback}}
+            
+            {{^has_courses_with_feedback}}
+            <div class="form-group">
+                <label><span class="badge badge-success">2</span> <strong>Select Course:</strong></label>
+                <select class="form-control" disabled>
+                    <option>-- No courses available --</option>
+                </select>
+            </div>
+            {{/has_courses_with_feedback}}
+        </div>
+        
+        <!-- Step 3: Feedback Selection (Third) -->
+        <div class="col-md-4 mb-3">
+            <div class="form-group">
+                <label for="selected_feedback"><span class="badge badge-warning">3</span> <strong>Select Feedback:</strong></label>
+                <select name="selected_feedback" id="selected_feedback" class="form-control" disabled>
+                    <option value="">-- Choose a Feedback --</option>
+                </select>
+            </div>
+        </div>
+        
+        <!-- Instructions -->
+        <div class="col-12">
+            <div class="alert alert-info">
+                <p class="mb-0">
+                    <i class="fa fa-info-circle"></i> 
+                    <strong>Follow these steps:</strong> 
+                    <span class="badge badge-primary">1</span> Select Area Manager/Nutrition Officer →
+                    <span class="badge badge-success">2</span> Select Course →
+                    <span class="badge badge-warning">3</span> Select Feedback → Data will display automatically
+                </p>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Feedback Data Display Container -->
+    <div class="feedback-data-container">
+        <div class="card">
+            <div class="card-body text-center py-5">
+                <div class="no-data">
+                    <i class="fa fa-chart-line fa-3x text-muted mb-3"></i>
+                    <h5 class="text-muted">Follow the steps above to view feedback analysis</h5>
+                    <p class="text-muted">Complete all selections to display detailed feedback data and analysis.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{{/has_access}}
 </div>
