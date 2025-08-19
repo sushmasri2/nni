@@ -1,8 +1,11 @@
 <?php
+// File: local/coursecompletion/version.php
 defined('MOODLE_INTERNAL') || die();
 
-$plugin->component = 'local_dashboardv2';
-$plugin->version = 2025010801; // YYYYMMDDHH
-$plugin->requires = 2020061500; // Moodle 3.9+
+$plugin->component = 'local_coursecompletion';
+$plugin->version = 2025081800;
+$plugin->requires = 2022112800; // Moodle 4.1
 $plugin->maturity = MATURITY_STABLE;
-$plugin->release = 'v2.0';
+$plugin->release = 'v1.0';
+
+?>
