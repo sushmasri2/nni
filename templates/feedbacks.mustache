@@ -1,0 +1,59 @@
+<div class="row mt-4 bg-white">
+    <div class="col-md-12 mb-5 edwiserReport-block local-edwiserreports">
+        <div id="feedbackmod">
+            <div class="panel has-footer m-0 pt-0 px-0 pb-3">
+                <div class="panel-header p-3 d-flex">
+                    <div class="panel-title theme-1-text p-0">
+                        <strong>Feedback Analysis</strong>
+                    </div>
+                </div>
+                <div class="panel-body px-3 py-0">
+                    <div class="block-filters position-relative pb-1">
+                        <div class="row">
+                        <div class="filter-selector col-12 col-md-4">
+                                <label>{{search_label}}</label>
+                                <select class="user-select form-control singleselect h-auto" data-for="{{data_selector}}">
+                                    {{#search_optoins}}
+                                        <option value="{{username}}">{{name}}</option>
+                                    {{/search_optoins}}
+                                </select>
+                            </div>
+                            <div class="filter-selector col-12 col-md-4 mb-1">
+                                <label>Course</label>
+                                <select class="course-select form-control singleselect h-auto">
+                                    {{#courselist}}
+                                        <option value="{{id}}">{{fullname}}</option>
+                                    {{/courselist}}
+                                </select>
+                            </div>
+                            <div class="filter-selector col-12 col-md-4 mb-1">
+                                <label>Feedback</label>
+                                <select class="feedback-select form-control singleselect h-auto">
+
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="tablearea"> 
+                    </div>
+                </div>
+                <div class="panel-footer p-3">
+                    <div class="row">
+                        <div class="col text-left d-none d-sm-block">
+                            <div id="feedbackcoursename" style="font-size: 14px;font-weight: 600;margin: 0;padding: 0;line-height: 1.2;"></div>
+                            <div id="feedbackname" style="font-size: 14px;color: #607D8B;margin: 0;padding: 0;"></div>
+                        </div>
+                        <div class="col-md-4">
+                            <a class="btn theme-primary-text theme-primary-border ml-auto fp-btn float-right">View details</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{{#js}}
+  require(['local_dashboardv2/feedback'], function(module) {
+        module.init();
+    });
+{{/js}}
