@@ -11,9 +11,6 @@
                     {{#str}}welcome, local_dashboardv2{{/str}}, {{user_fullname}} 
                     <span class="role-badge">({{role_display}})</span>
                 </p>
-                {{#spoc_name}}
-                <p class="text-muted mb-0"><strong>{{#str}}your_region, local_dashboardv2{{/str}}</strong> {{spoc_name}}</p>
-                {{/spoc_name}}
             </div>
             <div class="col-md-4 text-right">
                 <a href="{{dashboard_url}}" class="btn btn-secondary">
@@ -107,8 +104,7 @@
                                     <th>{{#str}}username, local_dashboardv2{{/str}}</th>
                                     <th>{{#str}}fullname, local_dashboardv2{{/str}}</th>
                                     <th>{{#str}}email, local_dashboardv2{{/str}}</th>
-                                    <th>{{#str}}spoc, local_dashboardv2{{/str}}</th>
-                                     <th>{{#str}}regional_head, local_dashboardv2{{/str}}</th>
+                                    <th>{{#str}}regional_head, local_dashboardv2{{/str}}</th>
                                     <th>{{#str}}area_manager, local_dashboardv2{{/str}}</th>
                                     <th>{{#str}}nutrition_officer, local_dashboardv2{{/str}}</th>
                                     
@@ -118,7 +114,6 @@
                                     {{/is_newregistrations}}
                                     
                                     {{#is_courseenrolments}}
-                                    <th>{{#str}}enrolment_count, local_dashboardv2{{/str}}</th>
                                     <th>{{#str}}enrolment_date, local_dashboardv2{{/str}}</th>
                                     {{/is_courseenrolments}}
                                     
@@ -135,7 +130,6 @@
                                     
                                     {{#is_inactiveusers}}
                                     <th>{{#str}}last_activity, local_dashboardv2{{/str}}</th>
-                                    <th>{{#str}}days_inactive, local_dashboardv2{{/str}}</th>
                                     {{/is_inactiveusers}}
                                     
                                     <th>{{#str}}module, local_dashboardv2, 1{{/str}}</th>
@@ -153,7 +147,6 @@
                                     <td><strong>{{username}}</strong></td>
                                     <td>{{fullname}}</td>
                                     <td>{{email}}</td>
-                                    <td>{{spoc}}</td>
                                     <td>{{regional_head}}</td>
                                     <td>{{area_manager}}</td>
                                     <td>{{nutrition_officer}}</td>
@@ -164,7 +157,6 @@
                                     {{/is_newregistrations}}
                                     
                                     {{#is_courseenrolments}}
-                                    <td><span class="badge badge-primary">{{enrolment_count}}</span></td>
                                     <td>{{enrolment_date}}</td>
                                     {{/is_courseenrolments}}
                                     

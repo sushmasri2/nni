@@ -8,25 +8,25 @@
             {{#str}}welcome, local_dashboardv2{{/str}}, {{user_fullname}}
             <span class="role-badge">({{role_display}})</span>
         </h3>
-       <p><strong>{{#str}}your_region, local_dashboardv2{{/str}}</strong> {{user_region}}</p>
     </div>
-    <div class="dashboard-content">
+    <div class="dashboard-content mt-3">
         <div class="row g-4">
         {{#insights}}
-            <div class="insight col-12 col-md-6 col-xl-3 mb-5 {{class}}" data-id="{{class}}">
-                <div class="insight-wrapper p-3">
+            <div class="insight col-12 col-md-6 col-xl-3 mb-5 {{class}}" data-id="{{class}}" >
+                <div class="insight-wrapper p-3" style="border: 3px soild {{color}};">
+                    <p style="background: {{color}}"></p>
                     <div class="row">
                         <div class="col-sm-3 p-0">
                             <div class="insight-image">
-                                <img src="{{icon}}" alt="{{class}}" class="img-fluid">
+                                <i class="{{icon}}" style="color:{{color}};background-color: {{color}}20;"></i>
                             </div>
                         </div>
                         <div class="col-sm-9 p-0">
-                            <h5 class="insight-title mb-0">{{title}}</h5>
+                            <h5 class="insight-title mb-2">{{title}}</h5>
                             <div class="insight-wrap d-flex justify-content-between align-items-center">
-                                <label class="insight-value pr-2 theme-primary-text h3" data-oldvalue="1208">{{count}}</label>
+                                <label class="insight-value pr-2 theme-primary-text h3" data-oldvalue="{{count}}">{{count}}</label>
                                 <a href="{{config.wwwroot}}/local/dashboardv2/reports.php?type={{class}}" 
-                                   class="btn btn-sm btn-outline-primary" 
+                                   class="btn btn-sm" style="border: 1px solid {{color}};color: {{color}}; padding: 4px 8px;"
                                    title="View {{title}} Report">
                                     <i class="fa fa-chart-line"></i> {{#str}}report, local_dashboardv2{{/str}}
                                 </a>
@@ -41,9 +41,7 @@
 
     {{#has_access}}
         <div class="dashboard-section">
-            <div class="panel-title theme-1-text p-0">
-                <strong>Module Wise Progress</strong>
-            </div>
+        <h3>Modules Completion Overview</h3>
             <div class="row align-items-center">
                 <div class="col-12 col-md-4">
                     {{#is_spoc}}
@@ -55,7 +53,7 @@
                                         <option value="">{{#str}}choose_area_manager, local_dashboardv2{{/str}}</option>
                                         {{#area_managers}}
                                         <option value="{{username}}" {{#selected}}selected{{/selected}}>
-                                            {{fullname}} ({{username}})
+                                            {{fullname}}
                                         </option>
                                         {{/area_managers}}
                                     </select>
@@ -78,7 +76,7 @@
                                         <option value="">{{#str}}choose_nutrition_officer, local_dashboardv2{{/str}}</option>
                                         {{#nutrition_officers}}
                                         <option value="{{username}}" {{#selected}}selected{{/selected}}>
-                                            {{fullname}} ({{username}})
+                                            {{fullname}}
                                         </option>
                                         {{/nutrition_officers}}
                                     </select>
@@ -96,7 +94,7 @@
                     <input type="text" id="search-users" class="form-control mr-3" placeholder="{{#str}}search_users, local_dashboardv2{{/str}}" aria-label="{{#str}}search_users, local_dashboardv2{{/str}}">
                 </div>
                 <div class="col-12 col-md-3">
-                    <button id="download-users-table" class="btn btn-primary">{{#str}}download_table, local_dashboardv2{{/str}}</button>
+                    <button id="download-users-table" style="background-color:#507de2" class="btn btn-primary border-0">{{#str}}download_table, local_dashboardv2{{/str}}</button>
                 </div>
             </div>
 
@@ -109,7 +107,6 @@
                             <th>{{#str}}username, local_dashboardv2{{/str}}</th>
                             <th>{{#str}}fullname, local_dashboardv2{{/str}}</th>
                             <th>{{#str}}email, local_dashboardv2{{/str}}</th>
-                            <th>{{#str}}spoc, local_dashboardv2{{/str}}</th>
                             <th>{{#str}}regional_head, local_dashboardv2{{/str}}</th>
                             <th>{{#str}}area_manager, local_dashboardv2{{/str}}</th>
                             <th>{{#str}}nutrition_officer, local_dashboardv2{{/str}}</th>
@@ -128,7 +125,6 @@
                             <td>{{username}}</td>
                             <td>{{fullname}}</td>
                             <td>{{email}}</td>
-                            <td>{{spoc}}</td>
                             <td>{{regional_head}}</td>
                             <td>{{area_manager}}</td>
                             <td>{{nutrition_officer}}</td>

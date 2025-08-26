@@ -47,6 +47,7 @@ $string['filtered_by_area_manager'] = 'Filtered by Area Manager';
 $string['filtered_by_nutrition_officer'] = 'Filtered by Nutrition Officer';
 $string['no_report_data'] = 'No Report Data Available';
 $string['no_data_description'] = 'No data found for the selected criteria. Try adjusting your filters.';
+$string['enrolment_date'] = 'Enrolment Date';
 
 // Report-specific strings
 $string['registration_date'] = 'Registration Date';

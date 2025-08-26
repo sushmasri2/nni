@@ -1,6 +1,8 @@
 <?php
 namespace local_dashboardv2\output;
 
+use theme_remui\customizer\elements\color;
+
 defined('MOODLE_INTERNAL') || die();
 
 use renderable;
@@ -70,43 +72,44 @@ class dashboard_page implements renderable, templatable
         $user_hierarchy_instance = new \local_dashboardv2\user_hierarchy();
         $this->insights = array(
             'newregistrations' => array(
-                'icon' => (new \moodle_url('/local/edwiserreports/pix/registration.svg'))->out(),
+                'icon' => 'fas fa-user',
                 'title' => get_string('newregistrations', 'local_dashboardv2'),
                 'class' => 'newregistrations',
                 'internal' => true,
                 'count' => $this->getCountBasedOnRole('newregistrations', $current_role, $user_hierarchy_instance),
+                'color'=>'#55b186' // Example color code
             ),
             'courseenrolments' => array(
-                'icon' => (new \moodle_url('/local/edwiserreports/pix/enrolment.svg'))->out(),
+                'icon' => 'fa-solid fa-graduation-cap',
                 'title' => get_string('courseenrolments', 'local_dashboardv2'),
                 'class' => 'courseenrolments',
                 'internal' => true,
                 'count' => $this->getCountBasedOnRole('courseenrolments', $current_role, $user_hierarchy_instance),
-
+                'color'=>'#6f3ce4' // Example color code
             ),
             'coursecompletions' => array(
-                'icon' => (new \moodle_url('/local/edwiserreports/pix/coursecompletion.svg'))->out(),
+                'icon' => 'fa-solid fa-circle-check',
                 'title' => get_string('coursecompletions', 'local_dashboardv2'),
                 'class' => 'coursecompletions',
                 'internal' => true,
                 'count' => $this->getCountBasedOnRole('coursecompletions', $current_role, $user_hierarchy_instance),
-
+                'color'=>'#fed068' // Example color code
             ),
             'activeusers' => array(
-                'icon' => (new \moodle_url('/local/edwiserreports/pix/activeusers.svg'))->out(),
+                'icon' => 'fa-solid fa-users',
                 'title' => get_string('activeusers', 'local_dashboardv2'),
                 'class' => 'activeusers',
                 'internal' => true,
                 'count' => $this->getCountBasedOnRole('activeusers', $current_role, $user_hierarchy_instance),
-
+                'color'=>'#507de2' // Example color code
             ),
             'inactiveusers' => array(
-                'icon' => (new \moodle_url('/local/edwiserreports/pix/inactiveusers.svg'))->out(),
+                'icon' => 'fa-solid fa-user-slash',
                 'title' => get_string('inactiveusers', 'local_dashboardv2'),
                 'class' => 'inactiveusers',
                 'internal' => true,
                 'count' => $this->getCountBasedOnRole('inactiveusers', $current_role, $user_hierarchy_instance),
-
+                'color'=>'#df676b' // Example color code
             ),
         );
     }

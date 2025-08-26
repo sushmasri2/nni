@@ -33,7 +33,7 @@ class dashboard_report implements renderable, templatable
 
         $data->search_optoins = [];
         if ($data->is_spoc = ($this->current_role === 'spoc')) {
-            $data->search_label = 'Select area manager';
+            $data->search_label = 'Select AM';
             $data->data_selector = 'area_manager';
 
             foreach ($this->area_managers as $am) {
@@ -43,7 +43,7 @@ class dashboard_report implements renderable, templatable
                 ];
             }
         } elseif ($data->is_area_manager = ($this->current_role === 'area_manager')) {
-            $data->search_label = 'Select nutrition officer';
+            $data->search_label = 'Select NO';
             $data->data_selector = 'nutrition_officer';
             foreach ($this->nutrition_officers as $no) {
                 $data->search_optoins[] = [

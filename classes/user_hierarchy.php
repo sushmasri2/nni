@@ -360,23 +360,4 @@ class user_hierarchy
         return $DB->get_records_sql($final_query, [$identifier]);
     }
 
-    // public static function get_users_under_role(string $role, string $expectedrole)
-    // {
-    //     global $DB, $USER;
-    //     $sql = "SELECT DISTINCT u.id, u.username, u.firstname, u.lastname
-    //             FROM {user} u
-    //                 JOIN {user_info_data} ud1 ON ud1.userid = u.id
-    //                 JOIN {user_info_field} uif1 ON uif1.id = ud1.fieldid
-    //                 JOIN {user_info_data} ud2 ON ud2.userid = u.id AND ud2.data = u.username
-    //                 JOIN {user_info_field} uif2 ON uif2.id = ud2.fieldid
-    //                 WHERE ud1.data = :username AND uif1.shortname = :currentrole AND uif2.shortname = :expectedrole AND u.username != :username1
-    //                 ORDER BY u.username";
-    //     $params = [
-    //         'username' => $USER->username,
-    //         'username1' => $USER->username,
-    //         'currentrole' => $role,
-    //         'expectedrole' => $expectedrole,
-    //     ];
-    //     return $DB->get_records_sql($sql, $params);
-    // }
 }

@@ -50,6 +50,18 @@
     box-shadow: 0 10px 20px 0 rgba(59, 65, 94, 0.15), 0 5px 10px 0 rgba(0, 0, 0, 0.1);
 }
 
+.insight-wrapper p {
+    height: 25px;
+    border-radius: 15px 15px 0 0;
+    margin: -19px -16px 15px -15px
+}
+
+.insight-image i {
+    font-size: 20px;
+    padding: 7px;
+    border-radius: 50%;
+}
+
 .dashboard-content .insight {
     max-width: 20% !important;
 }
@@ -280,21 +292,6 @@
     }
 }
 
-/* Button Styles */
-.btn-outline-primary {
-    border: 1px solid #0073aa;
-    color: #0073aa;
-    background: transparent;
-    font-size: 12px;
-    padding: 4px 8px;
-    transition: all 0.2s ease;
-}
-
-.btn-outline-primary:hover {
-    background: #0073aa;
-    color: white;
-}
-
 /* Role Badge */
 .role-badge {
     background: rgba(255, 255, 255, 0.2);
@@ -310,7 +307,8 @@
         padding: 20px;
     }
 
-    .header h1, .reports-header h2 {
+    .header h1,
+    .reports-header h2 {
         font-size: 24px;
     }
 
@@ -318,7 +316,8 @@
         max-width: 100%;
     }
 
-    .user-data-table, .reports-data-table {
+    .user-data-table,
+    .reports-data-table {
         font-size: 12px;
     }
 
@@ -340,6 +339,7 @@
 }
 
 @media (max-width: 576px) {
+
     .reports-data-table th,
     .reports-data-table td {
         font-size: 11px;
