@@ -35,7 +35,7 @@ $perpage = optional_param('perpage', 25, PARAM_INT);
 // Validate perpage values
 $allowed_perpage = [10, 25, 50, 100];
 if (!in_array($perpage, $allowed_perpage)) {
-    $perpage = 25;
+    $perpage = 10;
 }
 
 // Initialize data arrays

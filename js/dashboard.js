@@ -60,7 +60,7 @@ var Dashboard = {
         formData.append('nutrition_officer', selectedNutritionOfficer);
         formData.append('sesskey', M.cfg.sesskey);
         formData.append('page', page);
-        formData.append('perpage', 1); // 1 user per page for testing
+        formData.append('perpage', 25); // 1 user per page for testing
 
         fetch(M.cfg.wwwroot + '/local/dashboardv2/ajax_get_users_data.php', {
             method: 'POST',

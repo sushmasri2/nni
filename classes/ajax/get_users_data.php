@@ -31,7 +31,7 @@ class get_users_data
             $area_manager = optional_param('area_manager', '', PARAM_TEXT);
             $nutrition_officer = optional_param('nutrition_officer', '', PARAM_TEXT);
             $page = optional_param('page', 0, PARAM_INT);
-            $perpage = optional_param('perpage', 1, PARAM_INT);
+            $perpage = optional_param('perpage', 25, PARAM_INT);
 
             // Get current user role and hierarchy
             $current_role = user_hierarchy::get_current_user_role($USER->id);
