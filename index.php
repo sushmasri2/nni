@@ -133,9 +133,6 @@ if (in_array($current_role, ['spoc', 'area_manager'])) {
         $selected_nutrition_officer,
         $pagination,
         $total_count,
-        $perpage,
-        $start_record,
-        $end_record
     );
 
     $dashboardreport = new dashboard_report($current_role, $area_managers, $nutrition_officers);

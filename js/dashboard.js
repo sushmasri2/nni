@@ -60,7 +60,7 @@ var Dashboard = {
         formData.append('nutrition_officer', selectedNutritionOfficer);
         formData.append('sesskey', M.cfg.sesskey);
         formData.append('page', page);
-        formData.append('perpage', 1);
+        formData.append('perpage', 1); // 1 user per page for testing
 
         fetch(M.cfg.wwwroot + '/local/dashboardv2/ajax_get_users_data.php', {
             method: 'POST',
@@ -69,11 +69,11 @@ var Dashboard = {
             .then(response => response.json())
             .then(data => {
                 if (data.success) {
-                    this.updateUsersTable(data.data);
+                    this.updateUsersTable(data);
                 } else {
                     console.error('Error loading data:', data.message);
                     if (container) {
-                        container.innerHTML = '<div class="alert alert-danger">Error loading data</div>';
+                        container.innerHTML = '<div class="alert alert-danger">Error loading data: ' + data.message + '</div>';
                     }
                 }
             })
@@ -85,81 +85,105 @@ var Dashboard = {
             });
     },
 
-    updateUsersTable: function (data) {
+    updateUsersTable: function (response) {
         var container = document.querySelector('.users-table-container');
         if (!container) return;
 
-        if (!data || data.length === 0) {
+        if (!response.data || response.data.length === 0) {
             container.innerHTML = '<div class="no-data"><p>No users found.</p></div>';
             return;
         }
 
         var tableHTML = `
-            <table class="table table-striped users-data-table table-responsive">
-                <thead>
-                    <tr>
-                        <th>Username</th>
-                        <th>Full Name</th>
-                        <th>Email</th>
-                        <th>SPOC</th>
-                        <th>Regional Head</th>
-                        <th>Area Manager</th>
-                        <th>Nutrition Officer</th>
-                        <th>Module 1</th>
-                        <th>Module 2</th>
-                        <th>Module 3</th>
-                        <th>Module 4</th>
-                        <th>Module 5</th>
-                        <th>Module 6</th>
-                        <th>Module 7</th>
-                    </tr>
-                </thead>
-                <tbody>
-        `;
-
-        data.forEach(function (user) {
-            tableHTML += `
+        <table class="table table-striped users-data-table table-responsive">
+            <thead>
                 <tr>
-                    <td>${user.username}</td>
-                    <td>${user.fullname}</td>
-                    <td>${user.email}</td>
-                    <td>${user.spoc || ''}</td>
-                    <td>${user.regional_head || ''}</td>
-                    <td>${user.area_manager || ''}</td>
-                    <td>${user.nutrition_officer || ''}</td>
-                    <td>${user.module_1 || '0'}%</td>
-                    <td>${user.module_2 || '0'}%</td>
-                    <td>${user.module_3 || '0'}%</td>
-                    <td>${user.module_4 || '0'}%</td>
-                    <td>${user.module_5 || '0'}%</td>
-                    <td>${user.module_6 || '0'}%</td>
-                    <td>${user.module_7 || '0'}%</td>
+                    <th>Username</th>
+                    <th>Full Name</th>
+                    <th>Email</th>
+                    <th>SPOC</th>
+                    <th>Regional Head</th>
+                    <th>Area Manager</th>
+                    <th>Nutrition Officer</th>
+                    <th>Module 1</th>
+                    <th>Module 2</th>
+                    <th>Module 3</th>
+                    <th>Module 4</th>
+                    <th>Module 5</th>
+                    <th>Module 6</th>
+                    <th>Module 7</th>
                 </tr>
-            `;
+            </thead>
+            <tbody>
+    `;
+
+        response.data.forEach(function (user) {
+            tableHTML += `
+            <tr>
+                <td>${user.username}</td>
+                <td>${user.fullname}</td>
+                <td>${user.email}</td>
+                <td>${user.spoc || ''}</td>
+                <td>${user.regional_head || ''}</td>
+                <td>${user.area_manager || ''}</td>
+                <td>${user.nutrition_officer || ''}</td>
+                <td>${user.module_1 || '0'}%</td>
+                <td>${user.module_2 || '0'}%</td>
+                <td>${user.module_3 || '0'}%</td>
+                <td>${user.module_4 || '0'}%</td>
+                <td>${user.module_5 || '0'}%</td>
+                <td>${user.module_6 || '0'}%</td>
+                <td>${user.module_7 || '0'}%</td>
+            </tr>
+        `;
         });
 
         tableHTML += '</tbody></table>';
-        container.innerHTML = tableHTML;
-        if (paginationData && paginationData.total > paginationData.perpage) {
-            var paginationHTML = this.buildPagination(paginationData);
+
+        // Add pagination if needed
+        if (response.pagination && response.pagination.total > response.pagination.perpage) {
+            var paginationHTML = this.buildPagination(response.pagination);
             tableHTML += paginationHTML;
         }
 
         container.innerHTML = tableHTML;
         this.bindPaginationEvents();
     },
+
     buildPagination: function (paginationData) {
-        // Build simple pagination HTML
         var totalPages = Math.ceil(paginationData.total / paginationData.perpage);
         var currentPage = paginationData.page;
 
-        var html = '<div class="pagination-wrapper mt-3"><nav><ul class="pagination justify-content-center">';
+        var html = '<div class="pagination-wrapper mt-3 d-flex justify-content-between align-items-center">';
+        html += '<div class="pagination-info">';
+        html += '<small class="text-muted">';
+        html += 'Showing: ' + ((currentPage * paginationData.perpage) + 1) + '-';
+        html += Math.min((currentPage + 1) * paginationData.perpage, paginationData.total);
+        html += ' of ' + paginationData.total + ' total';
+        html += '</small>';
+        html += '</div>';
+        html += '<nav><ul class="pagination justify-content-center">';
 
+        // Previous button
+        if (currentPage > 0) {
+            html += '<li class="page-item">';
+            html += '<a class="page-link" href="#" data-page="' + (currentPage - 1) + '">Previous</a>';
+            html += '</li>';
+        }
+
+        // Page numbers
         for (var i = 0; i < totalPages; i++) {
             var activeClass = i === currentPage ? 'active' : '';
-            html += `<li class="page-item ${activeClass}">
-                    <a class="page-link" href="#" data-page="${i}">${i + 1}</a>
-                 </li>`;
+            html += '<li class="page-item ' + activeClass + '">';
+            html += '<a class="page-link" href="#" data-page="' + i + '">' + (i + 1) + '</a>';
+            html += '</li>';
+        }
+
+        // Next button
+        if (currentPage < totalPages - 1) {
+            html += '<li class="page-item">';
+            html += '<a class="page-link" href="#" data-page="' + (currentPage + 1) + '">Next</a>';
+            html += '</li>';
         }
 
         html += '</ul></nav></div>';

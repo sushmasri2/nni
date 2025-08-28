@@ -21,33 +21,46 @@ class dashboard_page implements renderable, templatable
     private $selected_area_manager;
     private $selected_nutrition_officer;
     private $insights;
-    private function getCountBasedOnRole($insight_name, $role, $hierarchy_instance) {
-        switch($insight_name) {
+    private $pagination;
+    private $total_count;
+    private function getCountBasedOnRole($insight_name, $role, $hierarchy_instance)
+    {
+        switch ($insight_name) {
             case 'newregistrations':
-                if ($role == 'spoc') return $hierarchy_instance->spoccount_newregistrations($this->user_hierarchy->spoc);
-                if ($role == 'area_manager') return $hierarchy_instance->area_managercount_newregistrations($this->user_hierarchy->area_manager);
+                if ($role == 'spoc')
+                    return $hierarchy_instance->spoccount_newregistrations($this->user_hierarchy->spoc);
+                if ($role == 'area_manager')
+                    return $hierarchy_instance->area_managercount_newregistrations($this->user_hierarchy->area_manager);
                 return 0;
-                
+
             case 'courseenrolments':
-                if ($role == 'spoc') return $hierarchy_instance->spoccount_courseenrolments($this->user_hierarchy->spoc);
-                if ($role == 'area_manager') return $hierarchy_instance->area_managercount_courseenrolments($this->user_hierarchy->area_manager);
+                if ($role == 'spoc')
+                    return $hierarchy_instance->spoccount_courseenrolments($this->user_hierarchy->spoc);
+                if ($role == 'area_manager')
+                    return $hierarchy_instance->area_managercount_courseenrolments($this->user_hierarchy->area_manager);
                 return 0;
-                
+
             case 'coursecompletions':
-                if ($role == 'spoc') return $hierarchy_instance->spoccount_coursecompletions($this->user_hierarchy->spoc);
-                if ($role == 'area_manager') return $hierarchy_instance->area_managercount_coursecompletions($this->user_hierarchy->area_manager);
+                if ($role == 'spoc')
+                    return $hierarchy_instance->spoccount_coursecompletions($this->user_hierarchy->spoc);
+                if ($role == 'area_manager')
+                    return $hierarchy_instance->area_managercount_coursecompletions($this->user_hierarchy->area_manager);
                 return 0;
-                
+
             case 'activeusers':
-                if ($role == 'spoc') return $hierarchy_instance->spoccount_activeusers($this->user_hierarchy->spoc);
-                if ($role == 'area_manager') return $hierarchy_instance->area_managercount_activeusers($this->user_hierarchy->area_manager);
+                if ($role == 'spoc')
+                    return $hierarchy_instance->spoccount_activeusers($this->user_hierarchy->spoc);
+                if ($role == 'area_manager')
+                    return $hierarchy_instance->area_managercount_activeusers($this->user_hierarchy->area_manager);
                 return 0;
-                
+
             case 'inactiveusers':
-                if ($role == 'spoc') return $hierarchy_instance->spoccount_inactiveusers($this->user_hierarchy->spoc);
-                if ($role == 'area_manager') return $hierarchy_instance->area_managercount_inactiveusers($this->user_hierarchy->area_manager);
+                if ($role == 'spoc')
+                    return $hierarchy_instance->spoccount_inactiveusers($this->user_hierarchy->spoc);
+                if ($role == 'area_manager')
+                    return $hierarchy_instance->area_managercount_inactiveusers($this->user_hierarchy->area_manager);
                 return 0;
-                
+
             default:
                 return 0;
         }
@@ -62,7 +75,7 @@ class dashboard_page implements renderable, templatable
         $selected_area_manager = '',
         $selected_nutrition_officer = '',
         $pagination = null,  // Add this
-    $total_count = 0 
+        $total_count = 0
     ) {
         $this->current_role = $current_role;
         $this->user_hierarchy = $user_hierarchy;
@@ -81,7 +94,7 @@ class dashboard_page implements renderable, templatable
                 'class' => 'newregistrations',
                 'internal' => true,
                 'count' => $this->getCountBasedOnRole('newregistrations', $current_role, $user_hierarchy_instance),
-                'color'=>'#55b186' // Example color code
+                'color' => '#55b186' // Example color code
             ),
             'courseenrolments' => array(
                 'icon' => 'fa-solid fa-graduation-cap',
@@ -89,7 +102,7 @@ class dashboard_page implements renderable, templatable
                 'class' => 'courseenrolments',
                 'internal' => true,
                 'count' => $this->getCountBasedOnRole('courseenrolments', $current_role, $user_hierarchy_instance),
-                'color'=>'#6f3ce4' // Example color code
+                'color' => '#6f3ce4' // Example color code
             ),
             'coursecompletions' => array(
                 'icon' => 'fa-solid fa-circle-check',
@@ -97,7 +110,7 @@ class dashboard_page implements renderable, templatable
                 'class' => 'coursecompletions',
                 'internal' => true,
                 'count' => $this->getCountBasedOnRole('coursecompletions', $current_role, $user_hierarchy_instance),
-                'color'=>'#fed068' // Example color code
+                'color' => '#fed068' // Example color code
             ),
             'activeusers' => array(
                 'icon' => 'fa-solid fa-users',
@@ -105,7 +118,7 @@ class dashboard_page implements renderable, templatable
                 'class' => 'activeusers',
                 'internal' => true,
                 'count' => $this->getCountBasedOnRole('activeusers', $current_role, $user_hierarchy_instance),
-                'color'=>'#507de2' // Example color code
+                'color' => '#507de2' // Example color code
             ),
             'inactiveusers' => array(
                 'icon' => 'fa-solid fa-user-slash',
@@ -113,7 +126,7 @@ class dashboard_page implements renderable, templatable
                 'class' => 'inactiveusers',
                 'internal' => true,
                 'count' => $this->getCountBasedOnRole('inactiveusers', $current_role, $user_hierarchy_instance),
-                'color'=>'#df676b' // Example color code
+                'color' => '#df676b' // Example color code
             ),
         );
     }
@@ -192,6 +205,17 @@ class dashboard_page implements renderable, templatable
         $data->pagination = $this->pagination ? $output->render($this->pagination) : '';
         $data->total_count = $this->total_count;
         $data->has_pagination = !empty($this->pagination);
+        // Add these lines after setting $data->total_count:
+        // Calculate pagination info
+        if ($this->pagination && $this->total_count > 0) {
+            $current_page = $this->pagination->page;
+            $per_page = $this->pagination->perpage;
+            $data->start_record = ($current_page * $per_page) + 1;
+            $data->end_record = min(($current_page + 1) * $per_page, $this->total_count);
+        } else {
+            $data->start_record = ($this->total_count > 0) ? 1 : 0;
+            $data->end_record = $this->total_count;
+        }
         return $data;
     }
 
