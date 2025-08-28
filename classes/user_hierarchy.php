@@ -88,12 +88,20 @@ class user_hierarchy
     /**
      * Generic method to get users with completion data based on hierarchy field
      */
-    private static function get_users_with_completion($field_id, $value, $exclude_self = true)
+    private static function get_users_with_completion($field_id, $value, $exclude_self = true, $page = 0, $perpage = 0)
     {
         global $DB;
         $self_condition = $exclude_self ? "AND u.username != ud{$field_id}.data" : "";
+        
+        $limitfrom = 0;
+        $limitnum = 0;
+        
+        if ($perpage > 0) {
+            $limitfrom = $page * $perpage;
+            $limitnum = $perpage;
+        }
 
-        return $DB->get_records_sql("
+        $sql = "
             SELECT DISTINCT u.*,
                    CONCAT(spoc_user.firstname, ' ', spoc_user.lastname) AS spoc,
                    CONCAT(am_user.firstname, ' ', am_user.lastname) AS area_manager,
@@ -116,39 +124,93 @@ class user_hierarchy
             WHERE u.deleted = 0 AND ud{$field_id}.data = ? {$self_condition} AND ra.roleid = 5 
             AND (cs.course = 6 OR cs.course IS NULL)
             GROUP BY u.id, u.username, u.firstname, u.lastname, u.email, ud8.data, ud11.data, ud12.data, ud13.data
-            ORDER BY u.username", [$value]);
+            ORDER BY u.username";
+        
+        if ($perpage > 0) {
+            return $DB->get_records_sql($sql, [$value], $limitfrom, $limitnum);
+        }
+        
+        return $DB->get_records_sql($sql, [$value]);
+    }
+
+    /**
+     * Generic count method for users based on hierarchy field
+     */
+    private static function count_users_with_completion($field_id, $value, $exclude_self = true)
+    {
+        global $DB;
+        $self_condition = $exclude_self ? "AND u.username != ud{$field_id}.data" : "";
+
+        return $DB->count_records_sql("
+            SELECT COUNT(DISTINCT u.id)
+            FROM {user} u
+            LEFT JOIN {user_info_data} ud{$field_id} ON ud{$field_id}.userid = u.id AND ud{$field_id}.fieldid = {$field_id}
+            LEFT JOIN {role_assignments} ra ON ra.userid = u.id
+            WHERE u.deleted = 0 AND ud{$field_id}.data = ? {$self_condition} AND ra.roleid = 5", [$value]);
     }
 
     /**
      * Get all users under SPOC with completion data
      */
-    public static function get_all_users_under_spoc($spoc)
+    public static function get_all_users_under_spoc($spoc, $page = 0, $perpage = 0)
     {
-        return self::get_users_with_completion(8, $spoc);
+        return self::get_users_with_completion(8, $spoc, true, $page, $perpage);
+    }
+
+    /**
+     * Count all users under SPOC
+     */
+    public static function count_users_under_spoc($spoc)
+    {
+        return self::count_users_with_completion(8, $spoc, true);
     }
 
     /**
      * Get users under specific area manager for SPOC
      */
-    public static function get_users_under_area_manager_for_spoc($area_manager_username)
+    public static function get_users_under_area_manager_for_spoc($area_manager_username, $page = 0, $perpage = 0)
     {
-        return self::get_users_with_completion(11, $area_manager_username);
+        return self::get_users_with_completion(11, $area_manager_username, false, $page, $perpage);
+    }
+
+    /**
+     * Count users under specific area manager for SPOC
+     */
+    public static function count_users_under_area_manager_for_spoc($area_manager_username)
+    {
+        return self::count_users_with_completion(11, $area_manager_username, false);
     }
 
     /**
      * Get all users under Area Manager
      */
-    public static function get_all_users_under_area_manager($area_manager)
+    public static function get_all_users_under_area_manager($area_manager, $page = 0, $perpage = 0)
     {
-        return self::get_users_with_completion(11, $area_manager);
+        return self::get_users_with_completion(11, $area_manager, true, $page, $perpage);
+    }
+
+    /**
+     * Count all users under Area Manager
+     */
+    public static function count_users_under_area_manager($area_manager)
+    {
+        return self::count_users_with_completion(11, $area_manager, true);
     }
 
     /**
      * Get users under Nutrition Officer for Area Manager
      */
-    public static function get_users_under_nutrition_officer_for_area_manager($nutrition_officer_username)
+    public static function get_users_under_nutrition_officer_for_area_manager($nutrition_officer_username, $page = 0, $perpage = 0)
     {
-        return self::get_users_with_completion(12, $nutrition_officer_username);
+        return self::get_users_with_completion(12, $nutrition_officer_username, false, $page, $perpage);
+    }
+
+    /**
+     * Count users under Nutrition Officer for Area Manager
+     */
+    public static function count_users_under_nutrition_officer_for_area_manager($nutrition_officer_username)
+    {
+        return self::count_users_with_completion(12, $nutrition_officer_username, false);
     }
 
     /**
@@ -258,7 +320,7 @@ class user_hierarchy
     /**
      * NEW: Get detailed report data for insights
      */
-    public static function get_report_data($report_type, $role_type, $identifier)
+    public static function get_report_data($report_type, $role_type, $identifier, $page = 0, $perpage = 0)
     {
         global $DB;
         
@@ -275,6 +337,14 @@ class user_hierarchy
         
         $field_id = $field_mapping[$role_type];
         $exclude_self = "AND u.username != ud{$field_id}.data";
+        
+        $limitfrom = 0;
+        $limitnum = 0;
+        
+        if ($perpage > 0) {
+            $limitfrom = $page * $perpage;
+            $limitnum = $perpage;
+        }
         
         // Base query components
         $base_select = "
@@ -357,7 +427,76 @@ class user_hierarchy
         
         $final_query = $base_select . $base_from . $base_where . ($additional_where ?? '') . $base_group . $base_order;
         
+        if ($perpage > 0) {
+            return $DB->get_records_sql($final_query, [$identifier], $limitfrom, $limitnum);
+        }
+        
         return $DB->get_records_sql($final_query, [$identifier]);
     }
 
+    /**
+     * Count report data for pagination
+     */
+    public static function count_report_data($report_type, $role_type, $identifier)
+    {
+        global $DB;
+        
+        // Map role types to field IDs
+        $field_mapping = [
+            'spoc' => 8,
+            'area_manager' => 11,
+            'nutrition_officer' => 12
+        ];
+        
+        if (!isset($field_mapping[$role_type])) {
+            return 0;
+        }
+        
+        $field_id = $field_mapping[$role_type];
+        $exclude_self = "AND u.username != ud{$field_id}.data";
+        
+        $base_from = "
+            FROM {user} u
+            LEFT JOIN {user_info_data} ud8 ON ud8.userid = u.id AND ud8.fieldid = 8
+            LEFT JOIN {user_info_data} ud11 ON ud11.userid = u.id AND ud11.fieldid = 11
+            LEFT JOIN {user_info_data} ud12 ON ud12.userid = u.id AND ud12.fieldid = 12
+            LEFT JOIN {user_info_data} ud13 ON ud13.userid = u.id AND ud13.fieldid = 13
+            LEFT JOIN {role_assignments} ra ON ra.userid = u.id";
+            
+        $base_where = "
+            WHERE u.deleted = 0 AND ud{$field_id}.data = ? {$exclude_self} AND ra.roleid = 5";
+        
+        // Customize query based on report type
+        switch ($report_type) {
+            case 'newregistrations':
+                $additional_where = " AND u.timecreated > " . (time() - (30 * 24 * 60 * 60));
+                break;
+                
+            case 'courseenrolments':
+                $base_from .= " LEFT JOIN {user_enrolments} ue ON ue.userid = u.id 
+                               LEFT JOIN {enrol} e ON e.id = ue.enrolid";
+                $additional_where = " AND ue.id IS NOT NULL";
+                break;
+                
+            case 'coursecompletions':
+                $base_from .= " LEFT JOIN {course_completions} cc ON cc.userid = u.id";
+                $additional_where = " AND cc.timecompleted IS NOT NULL";
+                break;
+                
+            case 'activeusers':
+                $additional_where = " AND u.lastaccess > " . (time() - (30 * 24 * 60 * 60));
+                break;
+                
+            case 'inactiveusers':
+                $additional_where = " AND (u.lastaccess = 0 OR u.lastaccess < " . (time() - (30 * 24 * 60 * 60)) . ")";
+                break;
+                
+            default:
+                $additional_where = "";
+        }
+        
+        $count_query = "SELECT COUNT(DISTINCT u.id) " . $base_from . $base_where . ($additional_where ?? '');
+        
+        return $DB->count_records_sql($count_query, [$identifier]);
+    }
 }

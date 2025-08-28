@@ -1,97 +1,99 @@
 // Simple dashboard.js - Place in /local/dashboardv2/js/dashboard.js
 
 var Dashboard = {
-    
-    init: function() {
+
+    init: function () {
         this.bindEvents();
     },
-    
-    bindEvents: function() {
+
+    bindEvents: function () {
         var self = this;
-        
+
         // AJAX form submission for dropdowns
         var areaManagerSelect = document.getElementById('selected_area_manager');
         var nutritionOfficerSelect = document.getElementById('selected_nutrition_officer');
-        
+
         if (areaManagerSelect) {
-            areaManagerSelect.addEventListener('change', function() {
+            areaManagerSelect.addEventListener('change', function () {
                 self.loadUsersData();
             });
         }
-        
+
         if (nutritionOfficerSelect) {
-            nutritionOfficerSelect.addEventListener('change', function() {
+            nutritionOfficerSelect.addEventListener('change', function () {
                 self.loadUsersData();
             });
         }
-        
+
         // Search functionality
         var searchInput = document.getElementById('search-users');
         if (searchInput) {
-            searchInput.addEventListener('input', function() {
+            searchInput.addEventListener('input', function () {
                 self.searchUsers(this.value);
             });
         }
-        
+
         // Download button
         var downloadBtn = document.getElementById('download-users-table');
         if (downloadBtn) {
-            downloadBtn.addEventListener('click', function() {
+            downloadBtn.addEventListener('click', function () {
                 self.downloadCSV();
             });
         }
     },
-    
-    loadUsersData: function() {
-        var selectedAreaManager = document.getElementById('selected_area_manager') ? 
+
+    loadUsersData: function (page = 0) {
+        var selectedAreaManager = document.getElementById('selected_area_manager') ?
             document.getElementById('selected_area_manager').value : '';
-        var selectedNutritionOfficer = document.getElementById('selected_nutrition_officer') ? 
+        var selectedNutritionOfficer = document.getElementById('selected_nutrition_officer') ?
             document.getElementById('selected_nutrition_officer').value : '';
-        
+
         // Show loading indicator
         var container = document.querySelector('.users-table-container');
         if (container) {
             container.innerHTML = '<div class="text-center"><i class="fa fa-spinner fa-spin"></i> Loading...</div>';
         }
-        
+
         // Simple AJAX request using fetch
         var formData = new FormData();
         formData.append('area_manager', selectedAreaManager);
         formData.append('nutrition_officer', selectedNutritionOfficer);
         formData.append('sesskey', M.cfg.sesskey);
-        
+        formData.append('page', page);
+        formData.append('perpage', 1);
+
         fetch(M.cfg.wwwroot + '/local/dashboardv2/ajax_get_users_data.php', {
             method: 'POST',
             body: formData
         })
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                this.updateUsersTable(data.data);
-            } else {
-                console.error('Error loading data:', data.message);
-                if (container) {
-                    container.innerHTML = '<div class="alert alert-danger">Error loading data</div>';
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    this.updateUsersTable(data.data);
+                } else {
+                    console.error('Error loading data:', data.message);
+                    if (container) {
+                        container.innerHTML = '<div class="alert alert-danger">Error loading data</div>';
+                    }
                 }
-            }
-        })
-        .catch(error => {
-            console.error('Ajax error:', error);
-            if (container) {
-                container.innerHTML = '<div class="alert alert-danger">Network error</div>';
-            }
-        });
+            })
+            .catch(error => {
+                console.error('Ajax error:', error);
+                if (container) {
+                    container.innerHTML = '<div class="alert alert-danger">Network error</div>';
+                }
+            });
     },
-    
-    updateUsersTable: function(data) {
+
+    updateUsersTable: function (data) {
         var container = document.querySelector('.users-table-container');
         if (!container) return;
-        
+
         if (!data || data.length === 0) {
             container.innerHTML = '<div class="no-data"><p>No users found.</p></div>';
             return;
         }
-        
+
         var tableHTML = `
             <table class="table table-striped users-data-table table-responsive">
                 <thead>
@@ -114,8 +116,8 @@ var Dashboard = {
                 </thead>
                 <tbody>
         `;
-        
-        data.forEach(function(user) {
+
+        data.forEach(function (user) {
             tableHTML += `
                 <tr>
                     <td>${user.username}</td>
@@ -135,30 +137,65 @@ var Dashboard = {
                 </tr>
             `;
         });
-        
+
         tableHTML += '</tbody></table>';
         container.innerHTML = tableHTML;
+        if (paginationData && paginationData.total > paginationData.perpage) {
+            var paginationHTML = this.buildPagination(paginationData);
+            tableHTML += paginationHTML;
+        }
+
+        container.innerHTML = tableHTML;
+        this.bindPaginationEvents();
     },
-    
-    searchUsers: function(searchTerm) {
+    buildPagination: function (paginationData) {
+        // Build simple pagination HTML
+        var totalPages = Math.ceil(paginationData.total / paginationData.perpage);
+        var currentPage = paginationData.page;
+
+        var html = '<div class="pagination-wrapper mt-3"><nav><ul class="pagination justify-content-center">';
+
+        for (var i = 0; i < totalPages; i++) {
+            var activeClass = i === currentPage ? 'active' : '';
+            html += `<li class="page-item ${activeClass}">
+                    <a class="page-link" href="#" data-page="${i}">${i + 1}</a>
+                 </li>`;
+        }
+
+        html += '</ul></nav></div>';
+        return html;
+    },
+
+    bindPaginationEvents: function () {
+        var self = this;
+        document.querySelectorAll('.page-link').forEach(function (link) {
+            link.addEventListener('click', function (e) {
+                e.preventDefault();
+                var page = parseInt(this.getAttribute('data-page'));
+                self.loadUsersData(page);
+            });
+        });
+    },
+
+    searchUsers: function (searchTerm) {
         var table = document.querySelector('.users-data-table');
         if (!table) return;
-        
+
         var rows = table.querySelectorAll('tbody tr');
-        
+
         if (!searchTerm) {
-            rows.forEach(function(row) {
+            rows.forEach(function (row) {
                 row.style.display = '';
             });
             return;
         }
-        
+
         searchTerm = searchTerm.toLowerCase();
-        
-        rows.forEach(function(row) {
+
+        rows.forEach(function (row) {
             var cells = row.querySelectorAll('td');
             var found = false;
-            
+
             // Search in specific columns: username, fullname, email, spoc, regional_head, area_manager, nutrition_officer
             for (var i = 0; i <= 6; i++) {
                 if (cells[i] && cells[i].textContent.toLowerCase().includes(searchTerm)) {
@@ -166,22 +203,22 @@ var Dashboard = {
                     break;
                 }
             }
-            
+
             row.style.display = found ? '' : 'none';
         });
     },
-    
-    downloadCSV: function() {
-        var selectedAreaManager = document.getElementById('selected_area_manager') ? 
+
+    downloadCSV: function () {
+        var selectedAreaManager = document.getElementById('selected_area_manager') ?
             document.getElementById('selected_area_manager').value : '';
-        var selectedNutritionOfficer = document.getElementById('selected_nutrition_officer') ? 
+        var selectedNutritionOfficer = document.getElementById('selected_nutrition_officer') ?
             document.getElementById('selected_nutrition_officer').value : '';
-        
+
         // Create form and submit for download
         var form = document.createElement('form');
         form.method = 'POST';
         form.action = M.cfg.wwwroot + '/local/dashboardv2/download.php';
-        
+
         if (selectedAreaManager) {
             var input1 = document.createElement('input');
             input1.type = 'hidden';
@@ -189,7 +226,7 @@ var Dashboard = {
             input1.value = selectedAreaManager;
             form.appendChild(input1);
         }
-        
+
         if (selectedNutritionOfficer) {
             var input2 = document.createElement('input');
             input2.type = 'hidden';
@@ -197,13 +234,13 @@ var Dashboard = {
             input2.value = selectedNutritionOfficer;
             form.appendChild(input2);
         }
-        
+
         var sesskey = document.createElement('input');
         sesskey.type = 'hidden';
         sesskey.name = 'sesskey';
         sesskey.value = M.cfg.sesskey;
         form.appendChild(sesskey);
-        
+
         document.body.appendChild(form);
         form.submit();
         document.body.removeChild(form);
@@ -211,6 +248,6 @@ var Dashboard = {
 };
 
 // Initialize when DOM is ready
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', function () {
     Dashboard.init();
 });

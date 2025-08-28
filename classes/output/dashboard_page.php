@@ -61,6 +61,8 @@ class dashboard_page implements renderable, templatable
         $users_data = [],
         $selected_area_manager = '',
         $selected_nutrition_officer = '',
+        $pagination = null,  // Add this
+    $total_count = 0 
     ) {
         $this->current_role = $current_role;
         $this->user_hierarchy = $user_hierarchy;
@@ -69,6 +71,8 @@ class dashboard_page implements renderable, templatable
         $this->users_data = $users_data;
         $this->selected_area_manager = $selected_area_manager;
         $this->selected_nutrition_officer = $selected_nutrition_officer;
+        $this->pagination = $pagination;
+        $this->total_count = $total_count;
         $user_hierarchy_instance = new \local_dashboardv2\user_hierarchy();
         $this->insights = array(
             'newregistrations' => array(
@@ -185,6 +189,9 @@ class dashboard_page implements renderable, templatable
         $data->has_nutrition_officers = !empty($this->nutrition_officers);
         $data->has_users_data = !empty($this->users_data);
         $data->insights = array_values($this->insights);
+        $data->pagination = $this->pagination ? $output->render($this->pagination) : '';
+        $data->total_count = $this->total_count;
+        $data->has_pagination = !empty($this->pagination);
         return $data;
     }
 

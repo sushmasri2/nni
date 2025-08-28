@@ -139,6 +139,18 @@
                         {{/users_data}}
                     </tbody>
                 </table>
+                {{#has_pagination}}
+                <div class="pagination-wrapper mt-3 d-flex justify-content-between align-items-center">
+                    <div class="pagination-info">
+                        <small class="text-muted">
+                            {{#str}}showing_records, local_dashboardv2{{/str}}: {{total_count}} {{#str}}total, local_dashboardv2{{/str}}
+                        </small>
+                    </div>
+                    <div class="pagination-controls">
+                        {{{pagination}}}
+                    </div>
+                </div>
+                {{/has_pagination}}
             {{/has_users_data}}
             {{^has_users_data}}
                 <div class="no-data">
